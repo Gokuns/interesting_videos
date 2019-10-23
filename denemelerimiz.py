@@ -17,8 +17,10 @@ from shapely.geometry import MultiPoint, box
 from nuscenes import NuScenes
 
 
-def export_videos(nusc: NuScenes, out_dir: str):
-    """ Export videos of the images displayed in the images. """
+def export_videos(nusc: NuScenes, out_dir: str, deneme: dict):
+    """ Export videos of the images displayed in the images.
+    :param deneme:
+    """
 
     # Load NuScenes class
     scene_tokens = [s['token'] for s in nusc.scene]
@@ -33,7 +35,7 @@ def export_videos(nusc: NuScenes, out_dir: str):
         print('Writing scene %s' % scene['name'])
         out_path = os.path.join(out_dir, scene['name']) + '.avi'
         if not os.path.exists(out_path):
-            nusc.render_scene_channel(scene['token'], 'CAM_FRONT',  out_path=out_path)
+            nusc.render_scene_channel(scene['token'], deneme=deneme, channel ='CAM_FRONT',  out_path=out_path)
 
 def post_process_coords(corner_coords: List,
                         imsize: Tuple[int, int] = (1600, 900)) -> Union[Tuple[float, float, float, float], None]:
@@ -181,14 +183,14 @@ def main(args):
                                  s['is_key_frame']]
 
     # For debugging purposes: Only produce the first n images.
-    if args.image_limit != -1:
-         sample_data_camera_tokens = sample_data_camera_tokens[:args.image_limit]
+    # if args.image_limit != -1:
+    #      sample_data_camera_tokens = sample_data_camera_tokens[:args.image_limit]
 
     # Loop through the records and apply the re-projection algorithm.
-    reprojections = []
+    reprojections = {}
     for token in tqdm(sample_data_camera_tokens):
         reprojection_records = get_2d_boxes(token, args.visibilities)
-        reprojections.extend(reprojection_records)
+        reprojections[token] = reprojection_records
 
     # Save to a .json file.
     dest_path = os.path.join(args.dataroot, args.version)
@@ -205,7 +207,7 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--dataroot', type=str, default='/Users/Asli/Desktop/train', help="Path where nuScenes is saved.")
     parser.add_argument('--version', type=str, default='v1.0-mini', help='Dataset version.')
-    parser.add_argument('--filename', type=str, default='asli.json', help='Output filename.')
+    parser.add_argument('--filename', type=str, default='gokalp.json', help='Output filename.')
     parser.add_argument('--visibilities', type=str, default=['', '1', '2', '3', '4'],
                         help='Visibility bins, the higher the number the higher the visibility.', nargs='+')
     parser.add_argument('--image_limit', type=int, default=-1, help='Number of images to process or -1 to process all.')
@@ -213,5 +215,6 @@ if __name__ == '__main__':
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
     main(args)
+    deneme = nusc.__load_table__('gokalp')
 
-    export_videos(nusc, "/Users/Asli/Desktop/gokalpy")
+    export_videos(nusc, "/Users/Asli/Desktop/lolo", deneme)
