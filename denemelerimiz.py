@@ -10,6 +10,7 @@ import argparse
 import os
 
 from VideoData import VideoData
+from Dataset import Dataset
 
 from typing import List, Tuple, Union
 from nuscenes import NuScenes
@@ -54,6 +55,7 @@ def render_scene_channel_new(nusc: NuScenes,
         impath, boxes, camera_intrinsic = nusc.get_sample_data(sd_rec['token'],
                                                                box_vis_level=BoxVisibility.ANY)
 
+
         # Load and render
         if not osp.exists(impath):
             raise Exception('Error: Missing image %s' % impath)
@@ -79,7 +81,8 @@ def render_scene_channel_new(nusc: NuScenes,
             boundaries.append((min_x, max_y))
             entry['corners'] = boundaries
             entry['category_name'] = three_d_box.name
-            entry['instance_token'] = three_d_box.token
+            sample_annotation = nusc.get('sample_annotation', three_d_box.token)
+            entry['instance_token'] = sample_annotation['instance_token']
 
             annotation_list.append(entry)
             for i in range(4):
@@ -171,8 +174,15 @@ if __name__ == '__main__':
     export_videos_and_two_dimensional_annotations(nusc, config.argument_defaults['export_path'])
     table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
     data_list = generate_video_data(table, nusc)
+
     for data in data_list:
         print(data.number_of_people)
+
+    dataset = Dataset(name="NuScenes", video_path=config.argument_defaults['export_path'], videos=data_list)
+    dataset.label_videos(data_list)
+    # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
+    #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
+
 
     print("Done")
 
