@@ -1,3 +1,7 @@
+import os.path as osp
+
+import cv2
+from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibility
 from nuscenes.utils.geometry_utils import view_points
 
 import numpy as np
@@ -6,212 +10,151 @@ import argparse
 import os
 
 from typing import List, Tuple, Union
-from pyquaternion.quaternion import Quaternion
-from collections import OrderedDict
-from tqdm import tqdm
-from shapely.geometry import MultiPoint, box
-
 from nuscenes import NuScenes
 
 
-def export_videos(nuscenes: NuScenes, out_dir: str):
-    """ Export videos of the images displayed in the images. """
+def render_scene_channel_new(nusc: NuScenes,
+                             scene_token: str,
+                             channel: str = 'CAM_FRONT',
+                             freq: float = 10,
+                             imsize: Tuple[float, float] = (640, 360),
+                             out_path: str = None) -> list:
+    valid_channels = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT',
+                      'CAM_BACK_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT']
 
+    assert imsize[0] / imsize[1] == 16 / 9, "Aspect ratio should be 16/9."
+    assert channel in valid_channels, 'Input channel {} not valid.'.format(channel)
+
+    if out_path is not None:
+        assert osp.splitext(out_path)[-1] == '.avi'
+
+    # Get records from DB
+    scene_rec = nusc.get('scene', scene_token)
+    sample_rec = nusc.get('sample', scene_rec['first_sample_token'])
+    sd_rec = nusc.get('sample_data', sample_rec['data'][channel])
+
+    # Open CV init
+    name = '{}: {} (Space to pause, ESC to exit)'.format(scene_rec['name'], channel)
+    cv2.namedWindow(name)
+    cv2.moveWindow(name, 0, 0)
+
+    if out_path is not None:
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        out = cv2.VideoWriter(out_path, fourcc, freq, imsize)
+    else:
+        out = None
+
+    scene_list = []
+
+    has_more_frames = True
+    while has_more_frames:
+        # Get data from DB
+        impath, boxes, camera_intrinsic = nusc.get_sample_data(sd_rec['token'],
+                                                               box_vis_level=BoxVisibility.ANY)
+
+        # Load and render
+        if not osp.exists(impath):
+            raise Exception('Error: Missing image %s' % impath)
+
+        im = cv2.imread(impath)
+        reprojections = {}
+        annotation_list = []
+
+        for three_d_box in boxes:
+            entry = {}
+            c = nusc.explorer.get_color(three_d_box.name)
+            cs_rec = nusc.get('calibrated_sensor', sd_rec['calibrated_sensor_token'])
+            camera_intrinsic = np.array(cs_rec['camera_intrinsic'])
+            corner_coords = view_points(three_d_box.corners(), camera_intrinsic, True).T[:, :2].tolist()
+            boundaries = []
+            min_x = int(min(coord[0] for coord in corner_coords))
+            min_y = int(min(coord[1] for coord in corner_coords))
+            max_x = int(max(coord[0] for coord in corner_coords))
+            max_y = int(max(coord[1] for coord in corner_coords))
+            boundaries.append((min_x, min_y))
+            boundaries.append((max_x, min_y))
+            boundaries.append((max_x, max_y))
+            boundaries.append((min_x, max_y))
+            entry['corners'] = boundaries
+            entry['category_name'] = three_d_box.name
+            entry['instance_token'] = three_d_box.token
+
+            annotation_list.append(entry)
+            for i in range(4):
+                cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
+
+        reprojections["annotation_list"] = annotation_list
+        reprojections["filename"] = impath
+        reprojections['sample_data_token'] = sd_rec['token']
+        reprojections['timestamp'] = sd_rec['timestamp']
+        reprojections['next'] = sd_rec['next']
+
+        # Render
+        im = cv2.resize(im, imsize)
+        cv2.imshow(name, im)
+        if out_path is not None:
+            out.write(im)
+
+        key = cv2.waitKey(10)  # Images stored at approx 10 Hz, so wait 10 ms.
+        if key == 32:  # If space is pressed, pause.
+            key = cv2.waitKey()
+
+        if key == 27:  # if ESC is pressed, exit
+            cv2.destroyAllWindows()
+            break
+        scene_list.append(reprojections)
+        if not sd_rec['next'] == "":
+            sd_rec = nusc.get('sample_data', sd_rec['next'])
+        else:
+            has_more_frames = False
+
+    cv2.destroyAllWindows()
+    if out_path is not None:
+        out.release()
+    return scene_list
+
+
+def export_videos_and_two_dimensional_annotations(nusc: NuScenes, out_dir: str):
     # Load NuScenes class
-    scene_tokens = [s['token'] for s in nuscenes.scene]
+    scene_tokens = [s['token'] for s in nusc.scene]
 
     # Create output directory
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
-
+    scene_to_annotations = {}
     # Write videos to disk
     for scene_token in scene_tokens:
-        scene = nuscenes.get('scene', scene_token)
+        scene = nusc.get('scene', scene_token)
         print('Writing scene %s' % scene['name'])
         out_path = os.path.join(out_dir, scene['name']) + '.avi'
         if not os.path.exists(out_path):
-            nuscenes.render_scene_channel(scene['token'], 'CAM_FRONT', out_path=out_path)
-
-
-def post_process_coords(corner_coords: List,
-                        imsize: Tuple[int, int] = (1600, 900)) -> Union[Tuple[float, float, float, float], None]:
-    """
-    Get the intersection of the convex hull of the reprojected bbox corners and the image
-    canvas, return None if no
-    intersection.
-    :param corner_coords: Corner coordinates of reprojected bounding box.
-    :param imsize: Size of the image canvas.
-    :return: Intersection of the convex hull of the 2D box corners and the image canvas.
-    """
-    polygon_from_2d_box = MultiPoint(corner_coords).convex_hull
-    img_canvas = box(0, 0, imsize[0], imsize[1])
-
-    if polygon_from_2d_box.intersects(img_canvas):
-        img_intersection = polygon_from_2d_box.intersection(img_canvas)
-        intersection_coords = np.array([coord for coord in img_intersection.exterior.coords])
-
-        min_x = min(intersection_coords[:, 0])
-        min_y = min(intersection_coords[:, 1])
-        max_x = max(intersection_coords[:, 0])
-        max_y = max(intersection_coords[:, 1])
-
-        return min_x, min_y, max_x, max_y
-    else:
-        return None
-
-
-def generate_record(ann_rec: dict,
-                    x1: float,
-                    y1: float,
-                    x2: float,
-                    y2: float,
-                    sample_data_token: str,
-                    filename: str) -> OrderedDict:
-    """
-    Generate one 2D annotation record given various informations on top of the 2D bounding box coordinates.
-    :param ann_rec: Original 3d annotation record.
-    :param x1: Minimum value of the x coordinate.
-    :param y1: Minimum value of the y coordinate.
-    :param x2: Maximum value of the x coordinate.
-    :param y2: Maximum value of the y coordinate.
-    :param sample_data_token: Sample data token.
-    :param filename:The corresponding image file where the annotation is present.
-    :return: A sample 2D annotation record.
-    """
-    repro_rec = OrderedDict()
-    repro_rec['sample_data_token'] = sample_data_token
-
-    relevant_keys = [
-        'attribute_tokens',
-        'category_name',
-        'instance_token',
-        'next',
-        'num_lidar_pts',
-        'num_radar_pts',
-        'prev',
-        'sample_annotation_token',
-        'sample_data_token',
-        'visibility_token',
-    ]
-
-    for key, value in ann_rec.items():
-        if key in relevant_keys:
-            repro_rec[key] = value
-
-    repro_rec['bbox_corners'] = [x1, y1, x2, y2]
-    repro_rec['filename'] = filename
-
-    return repro_rec
-
-
-def get_2d_boxes(sample_data_token: str, visibilities: List[str]) -> List[OrderedDict]:
-    """
-    Get the 2D annotation records for a given `sample_data_token`.
-    :param sample_data_token: Sample data token belonging to a keyframe.
-    :param visibilities: Visibility filter.
-    :return: List of 2D annotation record that belongs to the input `sample_data_token`
-    """
-
-    # Get the sample data and the sample corresponding to that sample data.
-    sd_rec = nusc.get('sample_data', sample_data_token)
-
-    if not sd_rec['is_key_frame']:
-        raise ValueError('The 2D re-projections are available only for keyframes.')
-
-    s_rec = nusc.get('sample', sd_rec['sample_token'])
-
-    # Get the calibrated sensor and ego pose record to get the transformation matrices.
-    cs_rec = nusc.get('calibrated_sensor', sd_rec['calibrated_sensor_token'])
-    pose_rec = nusc.get('ego_pose', sd_rec['ego_pose_token'])
-    camera_intrinsic = np.array(cs_rec['camera_intrinsic'])
-
-    # Get all the annotation with the specified visibilties.
-    ann_recs = [nusc.get('sample_annotation', token) for token in s_rec['anns']]
-    ann_recs = [ann_rec for ann_rec in ann_recs if (ann_rec['visibility_token'] in visibilities)]
-
-    repro_recs = []
-
-    for ann_rec in ann_recs:
-
-        ann_rec['sample_annotation_token'] = ann_rec['token']
-        ann_rec['sample_data_token'] = sample_data_token
-
-        box = nusc.get_box(ann_rec['token'])
-
-        # Move them to the ego-pose frame.
-        box.translate(-np.array(pose_rec['translation']))
-        box.rotate(Quaternion(pose_rec['rotation']).inverse)
-
-        # Move them to the calibrated sensor frame.
-        box.translate(-np.array(cs_rec['translation']))
-        box.rotate(Quaternion(cs_rec['rotation']).inverse)
-
-        # Filter out the corners that are not in front of the calibrated sensor.
-        corners_3d = box.corners()
-        in_front = np.argwhere(corners_3d[2, :] > 0).flatten()
-        corners_3d = corners_3d[:, in_front]
-
-        # Project 3d box to 2d.
-        corner_coords = view_points(corners_3d, camera_intrinsic, True).T[:, :2].tolist()
-
-        # Keep only corners that fall within the image.
-        final_coords = post_process_coords(corner_coords)
-
-        # Skip if the convex hull of the re-projected corners does not intersect the image canvas.
-        if final_coords is None:
-            continue
-        else:
-            min_x, min_y, max_x, max_y = final_coords
-
-        # Generate dictionary record to be included in the .json file.
-        repro_rec = generate_record(ann_rec, min_x, min_y, max_x, max_y, sample_data_token, sd_rec['filename'])
-        repro_recs.append(repro_rec)
-
-    return repro_recs
-
-
-def main(args):
-    """Generates 2D re-projections of the 3D bounding boxes present in the dataset."""
-
-    print("Generating 2D reprojections of the nuScenes dataset")
-
-    # Get tokens for all camera images.
-    sample_data_camera_tokens = [s['token'] for s in nusc.sample_data if (s['sensor_modality'] == 'camera') and
-                                 s['is_key_frame']]
-
-    # For debugging purposes: Only produce the first n images.
-    if args.image_limit != -1:
-         sample_data_camera_tokens = sample_data_camera_tokens[:args.image_limit]
-
-    # Loop through the records and apply the re-projection algorithm.
-    reprojections = []
-    for token in tqdm(sample_data_camera_tokens):
-        reprojection_records = get_2d_boxes(token, args.visibilities)
-        reprojections.extend(reprojection_records)
-
-    # Save to a .json file.
+            scene_to_annotations[scene_token] = render_scene_channel_new(nusc, scene['token'],
+                                                                               channel='CAM_FRONT',
+                                                                                freq= 10,
+                                                                         imsize=(640, 360),
+                                                                               out_path=out_path)
     dest_path = os.path.join(args.dataroot, args.version)
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     with open(os.path.join(args.dataroot, args.version, args.filename), 'w') as fh:
-        json.dump(reprojections, fh, sort_keys=True, indent=4)
+        json.dump(scene_to_annotations, fh, sort_keys=True, indent=4)
 
     print("Saved the 2D re-projections under {}".format(os.path.join(args.dataroot, args.version, args.filename)))
 
-if __name__ == '__main__':
 
+if _name_ == '_main_':
     parser = argparse.ArgumentParser(description='Export 2D annotations from reprojections to a .json file.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--dataroot', type=str, default='mini', help="Path where nuScenes is saved.")
+    parser.add_argument('--dataroot', type=str, default='/Users/Asli/Desktop/train',
+                        help="Path where nuScenes is saved.")
     parser.add_argument('--version', type=str, default='v1.0-mini', help='Dataset version.')
-    parser.add_argument('--filename', type=str, default='output.json', help='Output filename.')
+    parser.add_argument('--filename', type=str, default='hadi_ins.json', help='Output filename.')
     parser.add_argument('--visibilities', type=str, default=['', '1', '2', '3', '4'],
                         help='Visibility bins, the higher the number the higher the visibility.', nargs='+')
     parser.add_argument('--image_limit', type=int, default=-1, help='Number of images to process or -1 to process all.')
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    main(args)
-
-    if not os.path.exists("datasets/nuscenes/mini"):
-        export_videos(nusc, "datasets/nuscenes/mini")
+    export_videos_and_two_dimensional_annotations(nusc, "/Users/Asli/Desktop/sonmuartik")
+    deneme = nusc._load_table_("hadi_ins")
+    print("oldu mu")
