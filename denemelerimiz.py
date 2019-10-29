@@ -9,6 +9,8 @@ import json
 import argparse
 import os
 
+from videoData import VideoData
+
 from typing import List, Tuple, Union
 from nuscenes import NuScenes
 
@@ -143,6 +145,16 @@ def export_videos_and_two_dimensional_annotations(nusc: NuScenes, out_dir: str):
     print("Saved the 2D re-projections under {}".format(os.path.join(args.dataroot, args.version, args.filename)))
 
 
+def generate_video_data(table, nusc):
+    data_list = []
+    for key in table.keys():
+        name = nusc.get("scene", key)["name"]
+        path = osp.join("exports/2d_anns", name)
+        data = VideoData(table[key], path)
+        data_list.append(data)
+    return data_list
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export 2D annotations from reprojections to a .json file.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -158,6 +170,9 @@ if __name__ == '__main__':
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
     export_videos_and_two_dimensional_annotations(nusc, config.argument_defaults['export_path'])
     table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
+    data_list = generate_video_data(table, nusc)
+    for data in data_list:
+        print(data.number_of_people)
 
-    print("oldu mu")
+    print("Done")
 
