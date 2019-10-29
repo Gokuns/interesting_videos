@@ -1,5 +1,3 @@
-import json
-
 rareCategories = ["pushable_pullable",
                   "debris",
                   "ambulance",

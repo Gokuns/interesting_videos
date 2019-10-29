@@ -1,5 +1,3 @@
-from videoData import VideoData
-
 class Dataset:
     max_number_of_people = 0
     min_number_of_people = 0
@@ -32,7 +30,5 @@ class Dataset:
     def label_videos(self, videos: list):
         for video in videos:
             video.is_interesting = (video.number_of_rare_objects > self.average_number_of_rare_objects) \
-                                  or ((video.number_of_people > self.average_number_of_people)
-                                      and (video.number_of_vehicles > self.average_number_of_vehicles))
-
-
+                                   or ((video.number_of_people > self.average_number_of_people)
+                                       and (video.number_of_vehicles > self.average_number_of_vehicles))
