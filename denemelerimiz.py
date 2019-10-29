@@ -158,3 +158,4 @@ if __name__ == '__main__':
     export_videos_and_two_dimensional_annotations(nusc, "exports/2d_anns")
     deneme = nusc.__load_table__("hadi_ins")
     print("oldu mu")
+
