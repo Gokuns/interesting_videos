@@ -142,7 +142,7 @@ def export_videos_and_two_dimensional_annotations(nusc: NuScenes, out_dir: str):
     print("Saved the 2D re-projections under {}".format(os.path.join(args.dataroot, args.version, args.filename)))
 
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export 2D annotations from reprojections to a .json file.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--dataroot', type=str, default='/Users/Asli/Desktop/train',
@@ -155,6 +155,6 @@ if _name_ == '_main_':
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    export_videos_and_two_dimensional_annotations(nusc, "/Users/Asli/Desktop/sonmuartik")
-    deneme = nusc._load_table_("hadi_ins")
+    export_videos_and_two_dimensional_annotations(nusc, "exports/2d_anns")
+    deneme = nusc.__load_table__("hadi_ins")
     print("oldu mu")
