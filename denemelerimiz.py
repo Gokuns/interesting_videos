@@ -148,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataroot', type=str, default='/Users/Asli/Desktop/train',
                         help="Path where nuScenes is saved.")
     parser.add_argument('--version', type=str, default='v1.0-mini', help='Dataset version.')
-    parser.add_argument('--filename', type=str, default='hadi_ins.json', help='Output filename.')
+    parser.add_argument('--filename', type=str, default='2d_annotations.json', help='Output filename.')
     parser.add_argument('--visibilities', type=str, default=['', '1', '2', '3', '4'],
                         help='Visibility bins, the higher the number the higher the visibility.', nargs='+')
     parser.add_argument('--image_limit', type=int, default=-1, help='Number of images to process or -1 to process all.')
@@ -156,6 +156,7 @@ if __name__ == '__main__':
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
     export_videos_and_two_dimensional_annotations(nusc, "exports/2d_anns")
-    deneme = nusc.__load_table__("hadi_ins")
+    table = json.load(open(osp.join(osp.join(args.dataroot, args.version), '2d_annotations.json')))
+
     print("oldu mu")
 
