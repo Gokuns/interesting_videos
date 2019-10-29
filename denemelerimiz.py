@@ -9,9 +9,9 @@ import json
 import argparse
 import os
 
+from VideoData import VideoData
 from Dataset import Dataset
 from NuscRenderer import NuscRenderer
-from videoData import VideoData
 
 from typing import List, Tuple, Union
 from nuscenes import NuScenes
