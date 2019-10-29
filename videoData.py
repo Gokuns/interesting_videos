@@ -25,7 +25,6 @@ class VideoData:
         for sample in scene:
             ann_list = sample["annotation_list"]
             self.evaluate_anns(ann_list)
-            sample_token = sample["next"]
 
     def evaluate_anns(self, ann_list):
         for ann in ann_list:
