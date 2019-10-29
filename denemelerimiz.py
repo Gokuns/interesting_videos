@@ -136,8 +136,9 @@ def export_videos_and_two_dimensional_annotations(nusc: NuScenes, out_dir: str):
     dest_path = os.path.join(args.dataroot, args.version)
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
-    with open(os.path.join(args.dataroot, args.version, args.filename), 'w') as fh:
-        json.dump(scene_to_annotations, fh, sort_keys=True, indent=4)
+    if not scene_to_annotations.keys().__len__() == 0:
+        with open(os.path.join(args.dataroot, args.version, args.filename), 'w') as fh:
+            json.dump(scene_to_annotations, fh, sort_keys=True, indent=4)
 
     print("Saved the 2D re-projections under {}".format(os.path.join(args.dataroot, args.version, args.filename)))
 
