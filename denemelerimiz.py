@@ -3,7 +3,7 @@ import os.path as osp
 import cv2
 from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibility
 from nuscenes.utils.geometry_utils import view_points
-
+import config
 import numpy as np
 import json
 import argparse
@@ -145,18 +145,18 @@ def export_videos_and_two_dimensional_annotations(nusc: NuScenes, out_dir: str):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Export 2D annotations from reprojections to a .json file.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--dataroot', type=str, default='/Users/Asli/Desktop/train',
+    parser.add_argument('--dataroot', type=str, default=config.argument_defaults['dataroot'],
                         help="Path where nuScenes is saved.")
-    parser.add_argument('--version', type=str, default='v1.0-mini', help='Dataset version.')
-    parser.add_argument('--filename', type=str, default='2d_annotations.json', help='Output filename.')
+    parser.add_argument('--version', type=str, default=config.argument_defaults['version'], help='Dataset version.')
+    parser.add_argument('--filename', type=str, default=config.argument_defaults['filename'], help='Output filename.')
     parser.add_argument('--visibilities', type=str, default=['', '1', '2', '3', '4'],
                         help='Visibility bins, the higher the number the higher the visibility.', nargs='+')
     parser.add_argument('--image_limit', type=int, default=-1, help='Number of images to process or -1 to process all.')
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    export_videos_and_two_dimensional_annotations(nusc, "exports/2d_anns")
-    table = json.load(open(osp.join(osp.join(args.dataroot, args.version), '2d_annotations.json')))
+    export_videos_and_two_dimensional_annotations(nusc, config.argument_defaults['export_path'])
+    table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
 
     print("oldu mu")
 
