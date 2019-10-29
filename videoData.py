@@ -1,4 +1,4 @@
-from nuscenes.nuscenes import NuScenes
+import json
 
 rareCategories = ["pushable_pullable",
                   "debris",
@@ -8,48 +8,36 @@ rareCategories = ["pushable_pullable",
                   "personal_mobility",
                   "child"]
 
-class VideoData:
-    densityOfPeople = -1.0
-    densityOfVehicles = -1.0
-    numberOfPeople = 0
-    numberOfVehicles = 0
-    numberOfRareObjects = 0
 
-    def __init__(self, video, nusc):
-        sample_token = video["first_sample_token"]
-        while sample_token != "":
-            sample = nusc.get("sample", sample_token)
-            ann_list = sample["anns"]
-            self.evaluate_anns(ann_list, nusc)
+class VideoData:
+    _instance_tokens = set()
+
+    video_path = ""
+    is_interesting = False
+    density_of_people = -1.0
+    density_of_vehicles = -1.0
+    number_of_people = 0
+    number_of_vehicles = 0
+    number_of_rare_objects = 0
+
+    def __init__(self, scene, video_path):
+        self.video_path = video_path
+        for sample in scene:
+            ann_list = sample["annotation_list"]
+            self.evaluate_anns(ann_list)
             sample_token = sample["next"]
 
-    def evaluate_anns(self, ann_list, nusc):
-        for ann_tok in ann_list:
-            ann = nusc.get("sample_annotation", ann_tok)
-            category = ann["category_name"]
-            category = category.split(".")
-            general_category = category[0]
-            sub_category = category[-1]
-            if general_category == "human":
-                self.numberOfPeople += 1
-            if general_category == "vehicle":
-                self.numberOfVehicles += 1
-            if sub_category in rareCategories:
-                self.numberOfRareObjects += 1
-
-
-nusc = NuScenes(version='v1.0-mini',
-                dataroot='datasets/nuscenes/mini_raw',
-                verbose=True)
-for video in nusc.scene:
-    data = VideoData(video, nusc)
-    print("Number of People: {}".format(
-        data.numberOfPeople))
-    print("Number of Vehicles: {}".format(
-        data.numberOfVehicles))
-    print("Number of Rare Objects: {}".format(
-        data.numberOfRareObjects))
-
-for category in nusc.category:
-    print(category)
-
+    def evaluate_anns(self, ann_list):
+        for ann in ann_list:
+            if not ann["instance_token"] in self._instance_tokens:
+                self._instance_tokens.add(ann["instance_token"])
+                category = ann["category_name"]
+                category = category.split(".")
+                general_category = category[0]
+                sub_category = category[-1]
+                if general_category == "human":
+                    self.number_of_people += 1
+                if general_category == "vehicle":
+                    self.number_of_vehicles += 1
+                if sub_category in rareCategories:
+                    self.number_of_rare_objects += 1
