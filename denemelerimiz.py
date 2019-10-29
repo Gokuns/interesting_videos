@@ -77,8 +77,7 @@ def render_scene_channel_new(nusc: NuScenes,
             boundaries.append((min_x, max_y))
             entry['corners'] = boundaries
             entry['category_name'] = three_d_box.name
-            entry['instance_token'] =
-
+            entry['instance_token'] = three_d_box.token
 
             annotation_list.append(entry)
             for i in range(4):
