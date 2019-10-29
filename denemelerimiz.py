@@ -9,7 +9,7 @@ import json
 import argparse
 import os
 
-from videoData import VideoData
+from VideoData import VideoData
 
 from typing import List, Tuple, Union
 from nuscenes import NuScenes
