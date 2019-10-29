@@ -77,9 +77,6 @@ def render_scene_channel_new(nusc: NuScenes,
             boundaries.append((min_x, max_y))
             entry['corners'] = boundaries
             entry['category_name'] = three_d_box.name
-            entry['filename'] = impath
-            entry['sample_data_token'] = sd_rec['token']
-            entry['timestamp'] = sd_rec['timestamp']
             annotation_list.append(entry)
             for i in range(4):
                 cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
@@ -87,6 +84,7 @@ def render_scene_channel_new(nusc: NuScenes,
         reprojections["annotation_list"] = annotation_list
         reprojections["filename"] = impath
         reprojections['sample_data_token'] = sd_rec['token']
+        reprojections['timestamp'] = sd_rec['timestamp']
         reprojections['next'] = sd_rec['next']
 
         # Render
@@ -156,3 +154,5 @@ if __name__ == '__main__':
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
     export_videos_and_two_dimensional_annotations(nusc, "/Users/Asli/Desktop/sonmuartik")
+    deneme = nusc.__load_table__("hadi_ins")
+    print("oldu mu")
