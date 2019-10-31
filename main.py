@@ -42,7 +42,9 @@ if __name__ == '__main__':
     table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
     data_list = generate_video_data(table, nusc)
 
-    dataset = Dataset(name="NuScenes", video_path=config.argument_defaults['export_path'], videos=data_list)
+    # dataset = Dataset(name="NuScenes", video_path=config.argument_defaults['export_path'], videos=data_list)
+    dataset = Dataset("loaded dataset",
+                      json_path=config.argument_defaults['video_data_path'])
     dataset.label_videos(data_list, config.argument_defaults['poc_mode'])
     # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
     #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)

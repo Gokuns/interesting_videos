@@ -22,13 +22,14 @@ class VideoData:
 
     def __init__(self, scene, video_path):
         self.video_path = video_path
-        for sample in scene:
-            ann_list = sample["annotation_list"]
-            self.evaluate_anns(ann_list)
-        self.density_of_people = \
-            self._total_people_area / len(sample) / 1600 / 900
-        self.density_of_vehicles = \
-            self._total_vehicle_area / len(sample) / 1600 / 900
+        if scene is not None:
+            for sample in scene:
+                ann_list = sample["annotation_list"]
+                self.evaluate_anns(ann_list)
+            self.density_of_people = \
+                self._total_people_area / len(scene) / 1600 / 900
+            self.density_of_vehicles = \
+                self._total_vehicle_area / len(scene) / 1600 / 900
 
     def _calculate_area(self, corners):
         x_dif = corners[2][0] - corners[0][0]
