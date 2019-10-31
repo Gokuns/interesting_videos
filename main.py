@@ -34,10 +34,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    renderer = NuscRenderer(nusc)
-    renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
-    annotator = TwoDimensionalAnnotator(nusc)
-    annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
+    # renderer = NuscRenderer(nusc)
+    # renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
+    # annotator = TwoDimensionalAnnotator(nusc)
+    # annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
     table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
     data_list = generate_video_data(table, nusc)
