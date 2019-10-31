@@ -56,7 +56,5 @@ if __name__ == '__main__':
     # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
     #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
 
-
-
     start_app(VideoStatsViewer)
     print("Done")
