@@ -9,7 +9,8 @@ from Dataset import Dataset
 from NuscRenderer import NuscRenderer
 from TwoDimensionalAnnotator import TwoDimensionalAnnotator
 from VideoData import VideoData
-
+from pyforms import start_app
+from proof_of_concept_gui.VideoStatsViewer import VideoStatsViewer
 
 def generate_video_data(table, nusc):
     data_list = []
@@ -49,4 +50,7 @@ if __name__ == '__main__':
     # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
     #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
 
+
+
+    start_app(VideoStatsViewer(dataset=dataset))
     print("Done")

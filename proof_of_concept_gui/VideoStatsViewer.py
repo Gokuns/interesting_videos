@@ -4,14 +4,16 @@ import Dataset
 
 class VideoStatsViewer(BaseWidget):
 
-    def __init__(self,dataset:Dataset):
+    def __init__(self,dataset:Dataset=None):
 
         super().__init__('Computer vision algorithm example')
 
         self.set_margin(10)
 
         #Definition of the forms fields
-        self._videofile  = pc.ControlCombo()
+        self._videofile  = pc.ControlCombo('Select Video')
+        for videoData in dataset.videos:
+            self._videofile.add_item(videoData.video_path)
         self._outputfile = pc.ControlText('Results output file')
         self._threshold  = pc.ControlSlider('Threshold', default=114, minimum=0, maximum=255)
         self._blobsize   = pc.ControlSlider('Minimum blob size', default=110, minimum=100, maximum=2000)
@@ -33,7 +35,6 @@ class VideoStatsViewer(BaseWidget):
             ('_blobsize', '_runbutton'),
             '_player'
         ]
-        self._formset = [(self._formset,'_lala')]
 
 
     def __videoFileSelectionEvent(self):
@@ -54,8 +55,3 @@ class VideoStatsViewer(BaseWidget):
         """
         pass
 
-
-if __name__ == '__main__':
-
-    from pyforms import start_app
-    start_app(VideoStatsViewer)
