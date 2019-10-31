@@ -63,18 +63,14 @@ class Dataset:
                                        and (video.number_of_vehicles > self.number_of_vehicles.average)
 
     def save_as_json(self, path):
-        with open(path, 'w') as outfile:
-            fields = self.__dict__
+        with open(path, 'w+') as outfile:
+            fields = self.__dict__.copy()
             fields['videos'] = [v.__dict__ for v in
                                 fields['videos']]
-            fields['number_of_people'] = [v.__dict__ for v in
-                                          fields['number_of_people']]
-            fields['number_of_vehicles'] = [v.__dict__ for v in
-                                            fields['number_of_vehicles']]
-            fields['density_of_people'] = [v.__dict__ for v in
-                                           fields['density_of_people']]
-            fields['density_of_vehicles'] = [v.__dict__ for v in
-                                             fields['density_of_vehicles']]
+            fields['number_of_people'] = fields['number_of_people'].__dict__
+            fields['number_of_vehicles'] = fields['number_of_vehicles'].__dict__
+            fields['density_of_people'] = fields['density_of_people'].__dict__
+            fields['density_of_vehicles'] = fields['density_of_vehicles'].__dict__
             json.dump(fields, outfile)
 
     def load_from_json(self, path):
