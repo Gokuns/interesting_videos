@@ -46,7 +46,7 @@ if __name__ == '__main__':
         print(data.number_of_people)
 
     dataset = Dataset(name="NuScenes", video_path=config.argument_defaults['export_path'], videos=data_list)
-    dataset.label_videos(data_list)
+    dataset.label_videos(data_list, config.argument_defaults['poc_mode'])
     # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
     #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
 

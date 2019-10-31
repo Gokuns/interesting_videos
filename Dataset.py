@@ -1,14 +1,11 @@
-class Dataset:
-    max_number_of_people = 0
-    min_number_of_people = 0
-    average_number_of_people = 0.0
-    max_number_of_vehicles = 0
-    min_number_of_vehicles = 0
-    average_number_of_vehicles = 0.0
+from ColorBarStats import ColorBarStats
 
-    max_number_of_rare_objects = 0
-    min_number_of_rare_objects = 0
-    average_number_of_rare_objects = 0.0
+
+class Dataset:
+    number_of_people = ColorBarStats(0, 0, 0)
+    number_of_vehicles = ColorBarStats(0, 0, 0)
+    density_of_people = ColorBarStats(0, 0, 0)
+    density_of_vehicles = ColorBarStats(0, 0, 0)
 
     def __init__(self, name: str, video_path: str, videos: list):
         """
@@ -20,21 +17,32 @@ class Dataset:
         self.name = name
         self.video_path = video_path
         self.videos = videos
+        self.number_of_people = ColorBarStats(maximum=max(video.number_of_people for video in videos),
+                                              minimum=min(video.number_of_people for video in videos),
+                                              average=sum(
+                                                  video.number_of_people for video in videos) / videos.__len__())
 
-        self.min_number_of_people = int(min(video.number_of_people for video in videos))
-        self.max_number_of_people = int(max(video.number_of_people for video in videos))
-        self.average_number_of_people = sum(video.number_of_people for video in videos) / videos.__len__()
+        self.number_of_vehicles = ColorBarStats(maximum=max(video.number_of_vehicles for video in videos),
+                                                minimum=min(video.number_of_vehicles for video in videos),
+                                                average=sum(
+                                                    video.number_of_vehicles for video in videos) / videos.__len__())
 
-        self.min_number_of_vehicles = int(min(video.number_of_vehicles for video in videos))
-        self.max_number_of_vehicles = int(max(video.number_of_vehicles for video in videos))
-        self.average_number_of_vehicles = sum(video.number_of_vehicles for video in videos) / videos.__len__()
+        self.density_of_people = ColorBarStats(maximum=max(video.density_of_people for video in videos),
+                                               minimum=min(video.density_of_people for video in videos),
+                                               average=sum(
+                                                   video.density_of_people for video in videos) / videos.__len__())
 
-        self.min_number_of_rare_objects = int(min(video.number_of_rare_objects for video in videos))
-        self.max_number_of_rare_objects = int(max(video.number_of_rare_objects for video in videos))
-        self.average_number_of_rare_objects = sum(video.number_of_rare_objects for video in videos) / videos.__len__()
+        self.density_of_vehicles = ColorBarStats(maximum=max(video.density_of_vehicles for video in videos),
+                                                 minimum=min(video.density_of_vehicles for video in videos),
+                                                 average=sum(
+                                                     video.density_of_vehicles for video in videos) / videos.__len__())
 
-    def label_videos(self, videos: list):
-        for video in videos:
-            video.is_interesting = (video.number_of_rare_objects > self.average_number_of_rare_objects) \
-                                   or ((video.number_of_people > self.average_number_of_people)
-                                       and (video.number_of_vehicles > self.average_number_of_vehicles))
+    def label_videos(self, videos: list, poc_mode: str):
+        if poc_mode == 'density_based':
+            for video in videos:
+                video.is_interesting = (video.density_of_people > self.density_of_people.average) \
+                                       and (video.density_of_vehicles > self.density_of_vehicles.average)
+        else:
+            for video in videos:
+                video.is_interesting = (video.number_of_people > self.number_of_people.average) \
+                                       and (video.number_of_vehicles > self.number_of_vehicles.average)
