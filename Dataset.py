@@ -52,13 +52,13 @@ class Dataset:
                 video.density_of_vehicles for video in
                 videos) / videos.__len__())
 
-    def label_videos(self, videos: list, poc_mode: str):
+    def label_videos(self, poc_mode: str):
         if poc_mode == 'density_based':
-            for video in videos:
+            for video in self.videos:
                 video.is_interesting = (video.density_of_people > self.density_of_people.average) \
                                        and (video.density_of_vehicles > self.density_of_vehicles.average)
         else:
-            for video in videos:
+            for video in self.videos:
                 video.is_interesting = (video.number_of_people > self.number_of_people.average) \
                                        and (video.number_of_vehicles > self.number_of_vehicles.average)
 

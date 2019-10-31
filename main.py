@@ -40,23 +40,21 @@ if __name__ == '__main__':
     # annotator = TwoDimensionalAnnotator(nusc)
     # annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
-    table = json.load(open(osp.join(osp.join(args.dataroot, args.version), config.argument_defaults['filename'])))
-    data_list = generate_video_data(table, nusc)
-
     if not osp.exists(config.argument_defaults['video_data_path']):
+        table = json.load(open(osp.join(osp.join(args.dataroot, args.version),
+                                        config.argument_defaults['filename'])))
+        data_list = generate_video_data(table, nusc)
         dataset = Dataset(name="NuScenes",
                           video_path=config.argument_defaults['export_path'],
                           videos=data_list)
+        dataset.label_videos(config.argument_defaults['poc_mode'])
         dataset.save_as_json(config.argument_defaults['video_data_path'])
     else:
-        dataset = Dataset("loaded dataset",
+        dataset = Dataset("Nuscenes",
                           json_path=config.argument_defaults['video_data_path'])
 
-    dataset.label_videos(data_list, config.argument_defaults['poc_mode'])
     # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
     #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
-
-
 
     start_app(VideoStatsViewer)
     print("Done")
