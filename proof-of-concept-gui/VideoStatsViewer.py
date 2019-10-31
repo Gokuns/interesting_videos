@@ -1,101 +1,61 @@
-from tkinter import *
-from tkinter import messagebox
-from tkinter import filedialog
-import PIL.Image, PIL.ImageTk
-import cv2
+from pyforms.basewidget import BaseWidget
+import pyforms.controls as pc
+import Dataset
+
+class VideoStatsViewer(BaseWidget):
+
+    def __init__(self,dataset:Dataset):
+
+        super().__init__('Computer vision algorithm example')
+
+        self.set_margin(10)
+
+        #Definition of the forms fields
+        self._videofile  = pc.ControlCombo()
+        self._outputfile = pc.ControlText('Results output file')
+        self._threshold  = pc.ControlSlider('Threshold', default=114, minimum=0, maximum=255)
+        self._blobsize   = pc.ControlSlider('Minimum blob size', default=110, minimum=100, maximum=2000)
+        self._player     = pc.ControlPlayer('Player')
+        self._runbutton  = pc.ControlButton('Run')
+        self._lala = pc.ControlText('what what')
+
+        #Define the function that will be called when a file is selected
+        self._videofile.changed_event     = self.__videoFileSelectionEvent
+        #Define the event that will be called when the run button is processed
+        self._runbutton.value       = self.__runEvent
+        #Define the event called before showing the image in the player
+        self._player.process_frame_event    = self.__process_frame
+
+        #Define the organization of the Form Controls
+        self._formset = [
+            ('_videofile', '_outputfile'),
+            '_threshold',
+            ('_blobsize', '_runbutton'),
+            '_player'
+        ]
+        self._formset = [(self._formset,'_lala')]
 
 
-class videoGUI:
+    def __videoFileSelectionEvent(self):
+        """
+        When the videofile is selected instanciate the video in the player
+        """
+        self._player.value = self._videofile.value
 
-    def __init__(self, window, window_title):
+    def __process_frame(self, frame):
+        """
+        Do some processing to the frame and return the result frame
+        """
+        return frame
 
-        self.window = window
-        self.window.title(window_title)
-
-        top_frame = Frame(self.window)
-        top_frame.pack(side=TOP, pady=5)
-
-        bottom_frame = Frame(self.window)
-        bottom_frame.pack(side=BOTTOM, pady=5)
-
-        self.pause = False   # Parameter that controls pause button
-
-        self.canvas = Canvas(top_frame)
-        self.canvas.pack()
-
-        # Select Button
-        self.btn_select=Button(bottom_frame, text="Select video file", width=15, command=self.open_file)
-        self.btn_select.grid(row=0, column=0)
-
-        # Play Button
-        self.btn_play=Button(bottom_frame, text="Play", width=15, command=self.play_video)
-        self.btn_play.grid(row=0, column=1)
-
-        # Pause Button
-        self.btn_pause=Button(bottom_frame, text="Pause", width=15, command=self.pause_video)
-        self.btn_pause.grid(row=0, column=2)
-
-        self.delay = 15   # ms
-
-        self.window.mainloop()
+    def __runEvent(self):
+        """
+        After setting the best parameters run the full algorithm
+        """
+        pass
 
 
-    def open_file(self):
+if __name__ == '__main__':
 
-        self.pause = False
-
-        self.filename = filedialog.askopenfilename(title="Select file", filetypes=(("MP4 files", "*.mp4"),
-                                                                                         ("WMV files", "*.wmv"), ("AVI files", "*.avi")))
-        print(self.filename)
-
-        # Open the video file
-        self.cap = cv2.VideoCapture(self.filename)
-
-        self.width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
-        self.canvas.config(width = self.width, height = self.height)
-
-
-    def get_frame(self):   # get only one frame
-
-        try:
-
-            if self.cap.isOpened():
-                ret, frame = self.cap.read()
-                return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-
-        except:
-            messagebox.showerror(title='Video file not found', message='Please select a video file.')
-
-
-    def play_video(self):
-
-        if not self.pause:
-        # Get a frame from the video source, and go to the next frame automatically
-            ret, frame = self.get_frame()
-
-            if ret:
-                self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
-                # self.canvas.create_image(0, 0, image = self.photo, anchor = NW)
-
-
-                self.window.after(self.delay, self.play_video)
-        if self.pause:
-            self.pause = False
-
-
-    def pause_video(self):
-        self.pause = True
-
-
-    # Release the video source when the object is destroyed
-    def __del__(self):
-        if self.cap.isOpened():
-            self.cap.release()
-
-##### End Class #####
-
-
-# Create a window and pass it to videoGUI Class
-videoGUI(Tk(), "EnJapan")
+    from pyforms import start_app
+    start_app(VideoStatsViewer)
