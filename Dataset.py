@@ -11,6 +11,12 @@ class Dataset:
     average_number_of_rare_objects = 0.0
 
     def __init__(self, name: str, video_path: str, videos: list):
+        """
+
+        :param name: the name of the Dataset (Nuscenes, Berkeley etc.)
+        :param video_path: the path to the videos
+        :param videos: the list of VideoData
+        """
         self.name = name
         self.video_path = video_path
         self.videos = videos
