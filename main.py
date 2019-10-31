@@ -58,5 +58,5 @@ if __name__ == '__main__':
 
 
 
-    # start_app(VideoStatsViewer(dataset=dataset))
+    start_app(VideoStatsViewer)
     print("Done")
