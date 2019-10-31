@@ -48,6 +48,7 @@ if __name__ == '__main__':
             dataset = Dataset(name="NuScenes",
                               video_path=config.argument_defaults['export_path'],
                               videos=data_list)
+            dataset.save_as_json()
         else:
             dataset = Dataset("loaded dataset",
                               json_path=config.argument_defaults['video_data_path'])
