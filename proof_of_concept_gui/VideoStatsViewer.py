@@ -31,13 +31,13 @@ class VideoStatsViewer(BaseWidget):
         self._min_people = pc.ControlLabel('Min:' + str(dataset.number_of_people.minimum))
         self._avg_people = pc.ControlLabel('Avg:' + str(dataset.number_of_people.average))
         self._max_people = pc.ControlLabel('Max:' + str(dataset.number_of_people.maximum))
-        self._curr_people_lb = pc.ControlLabel('Current number of people:')
+        self._curr_people_lb = pc.ControlLabel('Total number of people:')
         self._curr_people = pc.ControlLabel()
 
         self._min_cars = pc.ControlLabel('Min' + str(dataset.number_of_vehicles.minimum))
         self._avg_cars = pc.ControlLabel('Avg:' + str(dataset.number_of_vehicles.average))
         self._max_cars = pc.ControlLabel('Max:' + str(dataset.number_of_vehicles.maximum))
-        self._curr_vehicle_lb = pc.ControlLabel('Current number of vehicles:')
+        self._curr_vehicle_lb = pc.ControlLabel('Total number of vehicles:')
         self._curr_vehicle = pc.ControlLabel()
 
         self._interesting_lb = pc.ControlLabel('Is it interesting?')
