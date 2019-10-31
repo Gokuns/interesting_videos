@@ -53,3 +53,5 @@ class VideoData:
                     self._total_vehicle_area += self._calculate_area(corners)
                 if sub_category in rareCategories:
                     self.number_of_rare_objects += 1
+
+

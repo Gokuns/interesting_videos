@@ -95,3 +95,9 @@ class Dataset:
             density_of_vehicles.__dict__ = fields['density_of_vehicles']
             fields['density_of_vehicles']
             self.__dict__ = fields
+    def find_video_from_path(self,path):
+        result = None
+        for video in self.videos:
+            if video.video_path+'.avi' == path:
+                result = video
+        return result
