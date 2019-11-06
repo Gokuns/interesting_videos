@@ -21,11 +21,11 @@ class NuscRenderer:
                                                         scene_token: str,
                                                         channel: str = 'CAM_FRONT',
                                                         freq: float = 10,
-                                                        imsize: Tuple[float, float] = (640, 360),
+                                                        imsize: Tuple[float, float] = (1280, 720),
                                                         out_path: str = None):
 
         if out_path is not None:
-            assert osp.splitext(out_path)[-1] == '.avi'
+            assert osp.splitext(out_path)[-1] == '.mp4'
 
         # Get records from DB
         scene_rec = self.nusc.get('scene', scene_token)
@@ -38,7 +38,7 @@ class NuscRenderer:
         cv2.moveWindow(name, 0, 0)
 
         if out_path is not None:
-            fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
             out = cv2.VideoWriter(out_path, fourcc, freq, imsize)
         else:
             out = None
@@ -70,8 +70,8 @@ class NuscRenderer:
                 boundaries.append((max_x, max_y))
                 boundaries.append((min_x, max_y))
 
-                for i in range(4):
-                    cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
+                # for i in range(4):
+                #     cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
 
             # Render
             im = cv2.resize(im, imsize)
@@ -108,11 +108,11 @@ class NuscRenderer:
         for scene_token in scene_tokens:
             scene = self.nusc.get('scene', scene_token)
             print('Writing scene %s' % scene['name'])
-            out_path = os.path.join(out_dir, scene['name']) + '.avi'
+            out_path = os.path.join(out_dir, scene['name']) + '.mp4'
             if not os.path.exists(out_path):
                 self.render_scene_channel_with_two_dimensional_boxes(scene['token'],
                                                                      freq=10,
-                                                                     imsize=(640, 360),
+                                                                     imsize=(1280, 720),
                                                                      out_path=out_path)
         dest_path = os.path.join(config.argument_defaults['dataroot'], config.argument_defaults['version'])
         if not os.path.exists(dest_path):

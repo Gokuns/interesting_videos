@@ -35,10 +35,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    # renderer = NuscRenderer(nusc)
-    # renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
-    # annotator = TwoDimensionalAnnotator(nusc)
-    # annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
+    renderer = NuscRenderer(nusc)
+    renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
+    annotator = TwoDimensionalAnnotator(nusc)
+    annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
     if not osp.exists(config.argument_defaults['video_data_path']):
         table = json.load(open(osp.join(osp.join(args.dataroot, args.version),
@@ -52,9 +52,6 @@ if __name__ == '__main__':
     else:
         dataset = Dataset("Nuscenes",
                           json_path=config.argument_defaults['video_data_path'])
-
-    # with open(os.path.join(args.dataroot, args.version, config.argument_defaults['dataset_path']), 'w') as fh:
-    #     json.dump(dataset.videos, fh, sort_keys=True, indent=4)
 
     start_app(VideoStatsViewer)
     print("Done")
