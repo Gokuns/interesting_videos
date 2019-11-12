@@ -55,6 +55,7 @@ if __name__=="__main__":
                             shell=True)
 
             result = classify_video('tmp', input_file, class_names, model, opt)
+
             outputs.append(result)
 
             subprocess.call('rm -rf tmp', shell=True)
@@ -64,5 +65,17 @@ if __name__=="__main__":
     if os.path.exists('tmp'):
         subprocess.call('rm -rf tmp', shell=True)
 
+    average_output = []
+    for scene in outputs:
+        res = {'video': scene['video']}
+        a = [i['features'] for i in scene['clips']]
+        deneme = np.sum(a, 0)/len(a)
+        res['features'] = deneme.tolist()
+        average_output.append(res)
+
+
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
+
+    with open("output_averages.json", 'w') as f:
+        json.dump(average_output, f)
