@@ -55,23 +55,23 @@ class NuscRenderer:
 
             im = cv2.imread(impath)
 
-            for three_d_box in boxes:
-                c = self.nusc.explorer.get_color(three_d_box.name)
-                cs_rec = self.nusc.get('calibrated_sensor', sd_rec['calibrated_sensor_token'])
-                camera_intrinsic = np.array(cs_rec['camera_intrinsic'])
-                corner_coords = view_points(three_d_box.corners(), camera_intrinsic, True).T[:, :2].tolist()
-                boundaries = []
-                min_x = int(min(coord[0] for coord in corner_coords))
-                min_y = int(min(coord[1] for coord in corner_coords))
-                max_x = int(max(coord[0] for coord in corner_coords))
-                max_y = int(max(coord[1] for coord in corner_coords))
-                boundaries.append((min_x, min_y))
-                boundaries.append((max_x, min_y))
-                boundaries.append((max_x, max_y))
-                boundaries.append((min_x, max_y))
-
-                # for i in range(4):
-                #     cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
+            # for three_d_box in boxes:
+            #     c = self.nusc.explorer.get_color(three_d_box.name)
+            #     cs_rec = self.nusc.get('calibrated_sensor', sd_rec['calibrated_sensor_token'])
+            #     camera_intrinsic = np.array(cs_rec['camera_intrinsic'])
+            #     corner_coords = view_points(three_d_box.corners(), camera_intrinsic, True).T[:, :2].tolist()
+            #     boundaries = []
+            #     min_x = int(min(coord[0] for coord in corner_coords))
+            #     min_y = int(min(coord[1] for coord in corner_coords))
+            #     max_x = int(max(coord[0] for coord in corner_coords))
+            #     max_y = int(max(coord[1] for coord in corner_coords))
+            #     boundaries.append((min_x, min_y))
+            #     boundaries.append((max_x, min_y))
+            #     boundaries.append((max_x, max_y))
+            #     boundaries.append((min_x, max_y))
+            #
+            #     for i in range(4):
+            #         cv2.line(im, boundaries[i], boundaries[(i + 1) % 4], c, 2)
 
             # Render
             im = cv2.resize(im, imsize)
