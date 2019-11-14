@@ -20,7 +20,7 @@ class VideoStatsViewer(BaseWidget):
         self._videofile  = pc.ControlCombo('Select Video')
         self._selected_video = None
         for videoData in dataset.videos:
-            path = videoData.video_path+'.mp4'
+            path = videoData.video_path
             name = ntpath.basename(path)
             self._videofile.add_item(name,path)
         self._player     = pc.ControlPlayer('Player')

@@ -16,7 +16,7 @@ from proof_of_concept_gui.VideoStatsViewer import VideoStatsViewer
 def generate_video_data(table, nusc):
     data_list = []
     for key in table.keys():
-        name = nusc.get("scene", key)["name"]
+        name = nusc.get("scene", key)["name"] + ".mp4"
         path = osp.join(config.argument_defaults['export_path'], name)
         data = VideoData(table[key], path)
         data_list.append(data)
