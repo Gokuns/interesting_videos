@@ -10,7 +10,7 @@ with open("datasets/nuscenes/output_averages_18.json") as f:
     features = StandardScaler().fit_transform(feature_vector_list)
     pca = PCA(n_components=20)
     principal_components = pca.fit_transform(features).tolist()
-    pca_dict = dict(zip(video_names, principal_components))
-    print(pca_dict)
+    for i in range(len(data)):
+        data[i]["features"] = principal_components[i]
     with open('data.json', 'w') as outfile:
-        json.dump(pca_dict, outfile)
+        json.dump(data, outfile)
