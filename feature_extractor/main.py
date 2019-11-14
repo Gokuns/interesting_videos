@@ -11,7 +11,10 @@ from model import generate_model
 from mean import get_mean
 from classify import classify_video
 
-if __name__=="__main__":
+import Dataset
+import config
+
+if __name__ == "__main__":
     opt = parse_opts()
     opt.mean = get_mean()
     opt.arch = '{}-{}'.format(opt.model_name, opt.model_depth)
@@ -25,6 +28,8 @@ if __name__=="__main__":
     assert opt.arch == model_data['arch']
     model.load_state_dict(model_data['state_dict'], strict=False)
     model.eval()
+    dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path'])
+
     if opt.verbose:
         print(model)
 
@@ -68,14 +73,16 @@ if __name__=="__main__":
     average_output = []
     for scene in outputs:
         res = {'video': scene['video']}
+        scene_full_path = config.argument_defaults['export_path']+'\\' + scene['video']
+        videodata = dataset.find_video_from_path(scene_full_path)
+        res['poc_result'] = int(videodata.is_interesting)
         a = [i['features'] for i in scene['clips']]
-        deneme = np.sum(a, 0)/len(a)
+        deneme = np.sum(a, 0) / len(a)
         res['features'] = deneme.tolist()
         average_output.append(res)
-
 
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
 
-    with open("output_averages.json", 'w') as f:
+    with open("output_averages_"+opt.model_depth+".json", 'w') as f:
         json.dump(average_output, f)

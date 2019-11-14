@@ -1,3 +1,9 @@
 config.py
 __pycache__/*
 */__pycache__/*
+.idea/
+feature_extractor/output_18.json
+feature_extractor/output_averages_18.json
+feature_extractor/resnet-18-kinetics.pth
+feature_extractor/tmp/
+setup/
