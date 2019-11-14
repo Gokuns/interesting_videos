@@ -12,6 +12,7 @@ from VideoData import VideoData
 from pyforms import start_app
 from proof_of_concept_gui.VideoStatsViewer import VideoStatsViewer
 
+
 def generate_video_data(table, nusc):
     data_list = []
     for key in table.keys():
@@ -37,8 +38,11 @@ if __name__ == '__main__':
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
     renderer = NuscRenderer(nusc)
     renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
-    annotator = TwoDimensionalAnnotator(nusc)
-    annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
+    if not osp.exists(osp.join(config.argument_defaults['dataroot'],
+                      config.argument_defaults['version'],
+                      config.argument_defaults['filename'])):
+        annotator = TwoDimensionalAnnotator(nusc)
+        annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
     if not osp.exists(config.argument_defaults['video_data_path']):
         table = json.load(open(osp.join(osp.join(args.dataroot, args.version),
