@@ -1,6 +1,7 @@
 from ColorBarStats import ColorBarStats
 import json
 from VideoData import VideoData
+import ntpath
 
 class Dataset:
     number_of_people = ColorBarStats(0, 0, 0)
@@ -100,5 +101,12 @@ class Dataset:
         result = None
         for video in self.videos:
             if video.video_path == path:
+                result = video
+        return result
+
+    def find_video_from_name(self,name):
+        result = None
+        for video in self.videos:
+            if ntpath.basename(video.video_path)== name:
                 result = video
         return result
