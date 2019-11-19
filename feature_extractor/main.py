@@ -84,5 +84,5 @@ if __name__ == "__main__":
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
 
-    with open("output_averages_"+opt.model_depth+".json", 'w') as f:
+    with open("output_averages_{}".format(opt.model_depth)+".json", 'w') as f:
         json.dump(average_output, f)
