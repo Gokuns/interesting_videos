@@ -11,7 +11,7 @@ class VideoStatsViewer(BaseWidget):
     def __init__(self, *args, **kwargs):
 
         super().__init__('VideoAnalyzer')
-        dataset = Dataset.Dataset(name= '', json_path=config.argument_defaults['video_data_path'])
+        dataset = Dataset.Dataset(name= '', json_path=config.argument_defaults['video_data_path'].format(config.argument_defaults['poc_mode']))
 
         self.set_margin(10)
 
@@ -109,7 +109,7 @@ class VideoStatsViewer(BaseWidget):
         When the videofile is selected instanciate the video in the player
         """
         dataset = Dataset.Dataset(name='', json_path=config.argument_defaults[
-            'video_data_path'])
+            'video_data_path'].format(config.argument_defaults['poc_mode']))
 
         self._player.value = self._videofile.value
         selected_video =  dataset.find_video_from_path(self._videofile.value)

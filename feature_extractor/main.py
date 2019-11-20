@@ -6,10 +6,10 @@ import numpy as np
 import torch
 from torch import nn
 
-from opts import parse_opts
-from model import generate_model
-from mean import get_mean
-from classify import classify_video
+from feature_extractor.opts import parse_opts
+from feature_extractor.model import generate_model
+from feature_extractor.mean import get_mean
+from feature_extractor.classify import classify_video
 
 import Dataset
 import config

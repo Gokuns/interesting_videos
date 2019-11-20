@@ -1,5 +1,4 @@
 import json
-import sklearn as sk
 import numpy as np
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
@@ -43,7 +42,7 @@ def partition_data(fil):
     return features, names, labels
 
 def tsne(features, names, labels):
-    per = 30
+    per = 2
     learning_rate = 200
     early_exaggeration = 12
     n_iter = 5000
