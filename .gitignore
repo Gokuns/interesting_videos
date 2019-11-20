@@ -7,3 +7,5 @@ feature_extractor/output_averages_18.json
 feature_extractor/resnet-18-kinetics.pth
 feature_extractor/tmp/
 setup/
+feature_extractor/Dataset.py
+feature_extractor/output*
