@@ -8,7 +8,7 @@ import matplotlib
 
 class VideoStatsViewer(BaseWidget):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
 
         super().__init__('VideoAnalyzer')
         dataset = Dataset.Dataset(name= '', json_path=config.argument_defaults['video_data_path'])
@@ -23,9 +23,16 @@ class VideoStatsViewer(BaseWidget):
             name = ntpath.basename(path)
             self._videofile.add_item(name,path)
         self._player     = pc.ControlPlayer('Player')
+
+
+
+
+
         self._person_bar = pc.ControlLabel("Number of People")
         self._vehicle_bar = pc.ControlLabel('Number of Vehicles')
         self._empty = pc.ControlEmptyWidget('asdd')
+        #self._bar = pc.ControlOpenGL()
+
 
         self._min_people = pc.ControlLabel('Min:' + str(dataset.number_of_people.minimum))
         self._avg_people = pc.ControlLabel('Avg:' + str(dataset.number_of_people.average))
@@ -49,14 +56,25 @@ class VideoStatsViewer(BaseWidget):
         #Define the event called before showing the image in the player
         self._player.process_frame_event    = self.__process_frame
 
+        if config.argument_defaults['selected_scene']!="":
+            vid = dataset.find_video_from_name(config.argument_defaults['selected_scene'])
+            self._player.value = vid.video_path
+            self._curr_people.value = str(vid.number_of_people)
+            self._curr_vehicle.value = str(vid.number_of_vehicles)
+            self._interesting.value = str(vid.is_interesting)
+
+
         #Define the organization of the Form Controls
         player_part = [
             '_player',
         ]
 
-        num_people = [            '_person_bar',
+        num_people = [
+            '_person_bar',
             ('_min_people', '_avg_people', '_max_people'),]
-        num_veh = [            '_vehicle_bar',
+
+        num_veh = [
+            '_vehicle_bar',
             ('_min_cars', '_avg_cars', '_max_cars'),
         ]
 
@@ -69,6 +87,7 @@ class VideoStatsViewer(BaseWidget):
             '_curr_vehicle',
             '_interesting_lb',
             '_interesting',
+            #'_bar',
             '_empty',
             '_empty',
             '_empty',
@@ -109,5 +128,7 @@ class VideoStatsViewer(BaseWidget):
         """
         After setting the best parameters run the full algorithm
         """
-        pass
+        dataset = Dataset.Dataset(name='', json_path=config.argument_defaults[
+            'video_data_path'])
+
 
