@@ -6,7 +6,6 @@ import ntpath
 import matplotlib
 
 
-
 class VideoStatsViewer(BaseWidget):
 
     def __init__(self):

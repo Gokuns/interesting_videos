@@ -14,7 +14,7 @@ from classify import classify_video
 import Dataset
 import config
 
-if __name__ == "__main__":
+def main():
     opt = parse_opts()
     opt.mean = get_mean()
     opt.arch = '{}-{}'.format(opt.model_name, opt.model_depth)
@@ -24,9 +24,9 @@ if __name__ == "__main__":
 
     model = generate_model(opt)
     print('loading model {}'.format(opt.model))
-    model_data = torch.load(opt.model, map_location='cpu')
+    model_data = torch.load(opt.model)
     assert opt.arch == model_data['arch']
-    model.load_state_dict(model_data['state_dict'], strict=False)
+    model.load_state_dict(model_data['state_dict'], strict = False)
     model.eval()
     dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path'])
 
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     average_output = []
     for scene in outputs:
         res = {'video': scene['video']}
-        scene_full_path = config.argument_defaults['export_path']+'\\' + scene['video']
+        scene_full_path = config.argument_defaults['export_path']+'/' + scene['video']
         videodata = dataset.find_video_from_path(scene_full_path)
         res['poc_result'] = int(videodata.is_interesting)
         a = [i['features'] for i in scene['clips']]
@@ -84,5 +84,8 @@ if __name__ == "__main__":
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
 
-    with open("output_averages_"+opt.model_depth+".json", 'w') as f:
+    with open("output_averages_{}.json".format(opt.model_depth), 'w') as f:
         json.dump(average_output, f)
+
+if __name__ == "__main__":
+    main()

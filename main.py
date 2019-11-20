@@ -36,8 +36,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     nusc = NuScenes(dataroot=args.dataroot, version=args.version)
-    renderer = NuscRenderer(nusc)
-    renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
+    # renderer = NuscRenderer(nusc)
+    # renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
     if not osp.exists(osp.join(config.argument_defaults['dataroot'],
                       config.argument_defaults['version'],
                       config.argument_defaults['filename'])):
