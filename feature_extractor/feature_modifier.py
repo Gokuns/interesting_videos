@@ -6,12 +6,15 @@ import config
 
 
 def change_poc(database_path, feature_path, output_path):
-    with load(open(feature_path)) as f, open(output_path) as out:
-        dataset = Dataset(json_path=database_path)
-        for video in f:
-            video_data = dataset.find_video_from_path(video["video"])
-            video["poc_result"] = video_data.is_interesting
-        dump(out, f)
+    with open(feature_path) as f:
+        f = load(f)
+        with open(output_path, 'w') as out:
+            dataset = Dataset.Dataset(name="nuscenes",
+                                      json_path=database_path)
+            for video in f:
+                video_data = dataset.find_video_from_path(video["video"])
+                video["poc_result"] = video_data.is_interesting
+            dump(f, out)
 
 
 def aggregate_features(base_feature_path, output_path, database_path, mode, opt):
@@ -40,3 +43,11 @@ def aggregate_features(base_feature_path, output_path, database_path, mode, opt)
                                                     'poc_mode']), 'w') as f:
             dump(average_output, f)
 
+
+poc_modes = ['density_based_both', 'number_based_both', 'number_based_one', 'density_based_one',
+              'peak_number_both', 'peak_area_both', 'peak_number_one', 'peak_area_one']
+for mode in poc_modes:
+    change_poc(config.argument_defaults['video_data_path']
+                             .format(mode),
+               "./output_averages_50.json",
+               "./output_averages_50_{}.json".format(mode))
