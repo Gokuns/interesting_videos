@@ -177,7 +177,7 @@ class Dataset:
     def find_video_from_path(self,path):
         result = None
         for video in self.videos:
-            if video.video_path == path:
+            if path in video.video_path:
                 result = video
         return result
 
@@ -187,3 +187,4 @@ class Dataset:
             if ntpath.basename(video.video_path)== name:
                 result = video
         return result
+

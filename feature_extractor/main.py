@@ -28,7 +28,8 @@ def main():
     assert opt.arch == model_data['arch']
     model.load_state_dict(model_data['state_dict'], strict = False)
     model.eval()
-    dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path'])
+    dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
+                             .format(config.argument_defaults['poc_mode'])+".json")
 
     if opt.verbose:
         print(model)
@@ -73,7 +74,7 @@ def main():
     average_output = []
     for scene in outputs:
         res = {'video': scene['video']}
-        scene_full_path = config.argument_defaults['export_path']+'/' + scene['video']
+        scene_full_path = scene['video']
         videodata = dataset.find_video_from_path(scene_full_path)
         res['poc_result'] = int(videodata.is_interesting)
         a = [i['features'] for i in scene['clips']]
@@ -84,7 +85,7 @@ def main():
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
 
-    with open("output_averages_{}.json".format(opt.model_depth), 'w') as f:
+    with open("output_averages_{}_{}.json".format(opt.model_depth, config.argument_defaults['poc_mode']), 'w') as f:
         json.dump(average_output, f)
 
 if __name__ == "__main__":
