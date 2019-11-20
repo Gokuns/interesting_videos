@@ -49,7 +49,7 @@ if __name__ == '__main__':
         annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
     if not osp.exists(config.argument_defaults['video_data_path']
-                             .format(config.argument_defaults['poc_mode'])+".json"):
+                             .format(config.argument_defaults['poc_mode'])):
         table = json.load(open(osp.join(osp.join(args.dataroot, args.version),
                                         config.argument_defaults['filename'])))
         data_list = generate_video_data(table, nusc)
@@ -58,13 +58,14 @@ if __name__ == '__main__':
                           videos=data_list)
         dataset.label_videos(config.argument_defaults['poc_mode'])
         dataset.save_as_json(config.argument_defaults['video_data_path']
-                             .format(config.argument_defaults['poc_mode'])+".json")
+                             .format(config.argument_defaults['poc_mode']))
     else:
         dataset = Dataset("Nuscenes",
-                          json_path=config.argument_defaults['video_data_path'])
-    print(config.argument_defaults['video_data_path']
-                .format(config.argument_defaults['poc_mode'])+" has {} many interesting cases out of 850"
-                .format(sum(video.is_interesting for video in dataset.videos)))
+                          json_path=config.argument_defaults['video_data_path']
+                             .format(config.argument_defaults['poc_mode']))
+    # print(config.argument_defaults['video_data_path']
+    #             .format(config.argument_defaults['poc_mode'])+" has {} many interesting cases out of 850"
+    #             .format(sum(video.is_interesting for video in dataset.videos)))
     start_app(VideoStatsViewer)
     print("Done")
 
