@@ -17,8 +17,9 @@ def change_poc(database_path, feature_path, output_path):
             dump(f, out)
 
 
-def aggregate_features(base_feature_path, output_path, database_path, mode, opt):
-    with load(open(base_feature_path)) as outputs:
+def aggregate_features(base_feature_path, database_path, mode, opt):
+    with open(base_feature_path) as f:
+        outputs = load(f)
         dataset = Dataset(json_path=database_path)
 
         average_output = []
