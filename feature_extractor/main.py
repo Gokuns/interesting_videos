@@ -14,23 +14,6 @@ from classify import classify_video
 import Dataset
 import config
 
-def main():
-    opt = parse_opts()
-    opt.mean = get_mean()
-    opt.arch = '{}-{}'.format(opt.model_name, opt.model_depth)
-    opt.sample_size = 112
-    opt.sample_duration = 16
-    opt.n_classes = 400
-
-    # dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
-    #                          .format(config.argument_defaults['poc_mode'])+".json")
-    extract_features(opt)
-
-
-if __name__ == "__main__":
-    main()
-
-
 def extract_features(opt):
     model = generate_model(opt)
     print('loading model {}'.format(opt.model))
@@ -82,3 +65,21 @@ def extract_features(opt):
 
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
+
+
+def main():
+    opt = parse_opts()
+    opt.mean = get_mean()
+    opt.arch = '{}-{}'.format(opt.model_name, opt.model_depth)
+    opt.sample_size = 112
+    opt.sample_duration = 16
+    opt.n_classes = 400
+
+    # dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
+    #                          .format(config.argument_defaults['poc_mode'])+".json")
+    extract_features(opt)
+
+
+if __name__ == "__main__":
+    main()
+
