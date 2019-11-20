@@ -22,14 +22,22 @@ def main():
     opt.sample_duration = 16
     opt.n_classes = 400
 
+    # dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
+    #                          .format(config.argument_defaults['poc_mode'])+".json")
+    extract_features(opt)
+
+
+if __name__ == "__main__":
+    main()
+
+
+def extract_features(opt):
     model = generate_model(opt)
     print('loading model {}'.format(opt.model))
     model_data = torch.load(opt.model)
     assert opt.arch == model_data['arch']
-    model.load_state_dict(model_data['state_dict'], strict = False)
+    model.load_state_dict(model_data['state_dict'], strict=False)
     model.eval()
-    dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
-                             .format(config.argument_defaults['poc_mode'])+".json")
 
     if opt.verbose:
         print(model)
@@ -57,8 +65,9 @@ def main():
         if os.path.exists(video_path):
             print(video_path)
             subprocess.call('mkdir tmp', shell=True)
-            subprocess.call('ffmpeg -i {} tmp/image_%05d.jpg'.format(video_path),
-                            shell=True)
+            subprocess.call(
+                'ffmpeg -i {} tmp/image_%05d.jpg'.format(video_path),
+                shell=True)
 
             result = classify_video('tmp', input_file, class_names, model, opt)
 
@@ -71,22 +80,5 @@ def main():
     if os.path.exists('tmp'):
         subprocess.call('rm -rf tmp', shell=True)
 
-    average_output = []
-    for scene in outputs:
-        res = {'video': scene['video']}
-        scene_full_path = scene['video']
-        videodata = dataset.find_video_from_path(scene_full_path)
-        res['poc_result'] = int(videodata.is_interesting)
-        a = [i['features'] for i in scene['clips']]
-        deneme = np.sum(a, 0) / len(a)
-        res['features'] = deneme.tolist()
-        average_output.append(res)
-
     with open(opt.output, 'w') as f:
         json.dump(outputs, f)
-
-    with open("output_averages_{}_{}.json".format(opt.model_depth, config.argument_defaults['poc_mode']), 'w') as f:
-        json.dump(average_output, f)
-
-if __name__ == "__main__":
-    main()
