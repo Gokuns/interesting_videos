@@ -52,10 +52,8 @@ class VideoData:
                 sub_category = category[-1]
                 if general_category == "human":
                     self.number_of_people += 1
-                    self._total_people_area += self._calculate_area(corners)
                 if general_category == "vehicle":
                     self.number_of_vehicles += 1
-                    self._total_vehicle_area += self._calculate_area(corners)
                 if sub_category in rareCategories:
                     self.number_of_rare_objects += 1
 
@@ -73,9 +71,11 @@ class VideoData:
             if general_category == "human":
                 number_of_people_in_sample += 1
                 area_of_people_in_sample += self._calculate_area(corners)
+                self._total_people_area += area_of_people_in_sample
             if general_category == "vehicle":
                 number_of_vehicles_in_sample += 1
                 area_of_vehicles_in_sample += self._calculate_area(corners)
+                self._total_vehicle_area += area_of_vehicles_in_sample
         self.peak_number_of_people = max(self.peak_number_of_people, number_of_people_in_sample)
         self.peak_number_of_vehicles = max(self.peak_number_of_vehicles, number_of_vehicles_in_sample)
         self.peak_area_of_people = max(self.peak_area_of_people, area_of_people_in_sample)
