@@ -1,7 +1,7 @@
 import json
 
 import matplotlib
-matplotlib.use('Qt5Agg')
+matplotlib.use('TKAgg')
 
 import sklearn as sk
 import numpy as np
@@ -50,7 +50,7 @@ def tsne(features, names, labels):
     per = 5
     learning_rate = 1000
     early_exaggeration = 30
-    n_iter = 7000
+    n_iter = 250
 
     X_embedded = TSNE(n_components=3, perplexity=per,
                       learning_rate=learning_rate,
