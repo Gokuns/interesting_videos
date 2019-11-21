@@ -1,4 +1,9 @@
 import json
+
+import matplotlib
+matplotlib.use('TKAgg')
+
+import sklearn as sk
 import numpy as np
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
@@ -28,7 +33,7 @@ def pca_data(data):
 
 
 
-def load_data(path='C:\\Users\\Goko\\Desktop\\output_averages_50.json'):
+def load_data(path=config.argument_defaults['feature_path']):
     # load and create a list
     f = open(path)
     fil = json.load(f)
@@ -42,10 +47,10 @@ def partition_data(fil):
     return features, names, labels
 
 def tsne(features, names, labels):
-    per = 2
-    learning_rate = 200
-    early_exaggeration = 12
-    n_iter = 5000
+    per = 5
+    learning_rate = 1000
+    early_exaggeration = 30
+    n_iter = 250
 
     X_embedded = TSNE(n_components=3, perplexity=per,
                       learning_rate=learning_rate,
