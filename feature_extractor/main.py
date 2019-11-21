@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 import torch
 from torch import nn
+import feature_modifier
 
 from opts import parse_opts
 from model import generate_model
@@ -77,7 +78,12 @@ def main():
 
     # dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
     #                          .format(config.argument_defaults['poc_mode']))
-    extract_features(opt)
+    # extract_features(opt)
+    # feature_modifier.aggregate_features("./output_101.json",
+    #                                     config.argument_defaults['video_data_path']
+    #                                     .format(config.argument_defaults['poc_mode']),
+    #                                     'average',
+    #                                     opt)
 
 
 if __name__ == "__main__":
