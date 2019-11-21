@@ -118,6 +118,7 @@ class ResNet(nn.Module):
         last_size = math.ceil(sample_size / 32)
         self.avgpool = nn.AvgPool3d((last_duration, last_size, last_size), stride=1)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
+        #num classese yerine 2 class
 
         for m in self.modules():
             if isinstance(m, nn.Conv3d):

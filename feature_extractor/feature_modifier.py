@@ -20,7 +20,7 @@ def change_poc(database_path, feature_path, output_path):
 def aggregate_features(base_feature_path, database_path, mode, opt):
     with open(base_feature_path) as f:
         outputs = load(f)
-        dataset = Dataset(json_path=database_path)
+        dataset = Dataset.Dataset(json_path=database_path, name="nuscenes")
 
         average_output = []
         for scene in outputs:
@@ -50,5 +50,5 @@ poc_modes = ['density_based_both', 'number_based_both', 'number_based_one', 'den
 for mode in poc_modes:
     change_poc(config.argument_defaults['video_data_path']
                              .format(mode),
-               "./output_averages_50.json",
-               "./output_averages_50_{}.json".format(mode))
+               "./output_average_101_density_based_both.json",
+               "./output_average_101_{}.json".format(mode))
