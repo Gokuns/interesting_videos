@@ -117,8 +117,8 @@ class ResNet(nn.Module):
         last_duration = math.ceil(sample_duration / 16)
         last_size = math.ceil(sample_size / 32)
         self.avgpool = nn.AvgPool3d((last_duration, last_size, last_size), stride=1)
-        #self.fc = nn.Linear(512 * block.expansion, num_classes)
-        self.fc = nn.Linear(512 * block.expansion, 2)
+        self.fc = nn.Linear(512 * block.expansion, num_classes)
+        #self.fc = nn.Linear(512 * block.expansion, 2)
         #num classese yerine 2 class
 
         for m in self.modules():
