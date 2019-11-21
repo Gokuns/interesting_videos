@@ -47,8 +47,8 @@ def partition_data(fil):
     return features, names, labels
 
 def tsne(features, names, labels):
-    per = 5
-    learning_rate = 1000
+    per = 2
+    learning_rate = 250
     early_exaggeration = 30
     n_iter = 250
 
