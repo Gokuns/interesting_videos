@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_limit', type=int, default=-1, help='Number of images to process or -1 to process all.')
     args = parser.parse_args()
 
-    nusc = NuScenes(dataroot=args.dataroot, version=args.version)
+    nusc =  None
     # renderer = NuscRenderer(nusc)
     # renderer.export_videos_and_two_dimensional_annotations(config.argument_defaults['export_path'])
 
@@ -45,11 +45,15 @@ if __name__ == '__main__':
     if not osp.exists(osp.join(config.argument_defaults['dataroot'],
                       config.argument_defaults['version'],
                       config.argument_defaults['filename'])):
+        if nusc == None:
+            nusc = NuScenes(dataroot=args.dataroot, version=args.version)
         annotator = TwoDimensionalAnnotator(nusc)
         annotator.export_two_dimensional_annotations(config.argument_defaults['export_path'])
 
     if not osp.exists(config.argument_defaults['video_data_path']
                              .format(config.argument_defaults['poc_mode'])):
+        if nusc == None:
+            nusc = NuScenes(dataroot=args.dataroot, version=args.version)
         table = json.load(open(osp.join(osp.join(args.dataroot, args.version),
                                         config.argument_defaults['filename'])))
         data_list = generate_video_data(table, nusc)
@@ -63,9 +67,7 @@ if __name__ == '__main__':
         dataset = Dataset("Nuscenes",
                           json_path=config.argument_defaults['video_data_path']
                              .format(config.argument_defaults['poc_mode']))
-    # print(config.argument_defaults['video_data_path']
-    #             .format(config.argument_defaults['poc_mode'])+" has {} many interesting cases out of 850"
-    #             .format(sum(video.is_interesting for video in dataset.videos)))
+
     start_app(VideoStatsViewer)
     print("Done")
 

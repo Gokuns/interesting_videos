@@ -76,7 +76,7 @@ def main():
     opt.n_classes = 400
 
     # dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
-    #                          .format(config.argument_defaults['poc_mode'])+".json")
+    #                          .format(config.argument_defaults['poc_mode']))
     extract_features(opt)
 
 
