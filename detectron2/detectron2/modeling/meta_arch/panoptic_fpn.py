@@ -77,7 +77,7 @@ class PanopticFPN(nn.Module):
         features = self.backbone(images.tensor)
 
         feats = opt_creator.FeatureBearer.getInstance().features
-        feats.append(torch.flatten(features['p6']))
+        feats.append(torch.flatten(features['p6']).cpu().numpy().tolist())
 
 
         if "proposals" in batched_inputs[0]:
