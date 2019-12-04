@@ -147,7 +147,9 @@ if __name__ == "__main__":
                     frameSize=(width, height),
                     isColor=True,
                 )
-            assert os.path.isfile(args.video_input)
+            if not os.path.isfile(args.video_input):
+                continue
+            #assert os.path.isfile(args.video_input)
 
 
             for vis_frame in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
