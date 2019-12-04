@@ -47,10 +47,10 @@ def partition_data(fil):
     return features, names, labels
 
 def tsne(features, names, labels):
-    per = 2
-    learning_rate = 250
-    early_exaggeration = 30
-    n_iter = 250
+    per = 4
+    learning_rate = 1e-3
+    early_exaggeration = 1500
+    n_iter = 5000
 
     X_embedded = TSNE(n_components=3, perplexity=per,
                       learning_rate=learning_rate,
