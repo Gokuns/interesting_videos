@@ -176,8 +176,9 @@ class Dataset:
 
     def find_video_from_path(self,path):
         result = None
+        repath = path.replace('.mp4', '')
         for video in self.videos:
-            if path in video.video_path:
+            if repath in video.video_path:
                 result = video
         return result
 
