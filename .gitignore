@@ -1,8 +1,5 @@
 config.py
 __pycache__/*
-<<<<<<< .merge_file_a11860
-.idea
-=======
 */__pycache__/*
 .idea/
 feature_extractor/output_18.json
@@ -12,4 +9,3 @@ feature_extractor/tmp/
 setup/
 feature_extractor/Dataset.py
 feature_extractor/output*
->>>>>>> .merge_file_a07744
