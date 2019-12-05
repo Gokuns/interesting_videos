@@ -5,7 +5,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvas
 
 from matplotlib.figure import Figure
 import matplotlib
-# Ensure using PyQt5 backend
+from mpl_toolkits.mplot3d import Axes3D
+
 matplotlib.use('QT5Agg')
 
 # Matplotlib canvas class to create figure

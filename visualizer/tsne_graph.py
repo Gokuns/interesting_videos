@@ -11,8 +11,6 @@ from sklearn.decomposition import PCA
 import json
 import config
 
-matplotlib.use('QT5Agg')
-
 
 class Ui_tsne_view(object):
 
