@@ -2,7 +2,7 @@ from PyQt5.QtCore import QDir, Qt, QUrl, QRect
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
-        QPushButton, QSizePolicy, QSlider, QStyle, QVBoxLayout, QWidget, QComboBox)
+                             QPushButton, QSizePolicy, QSlider, QStyle, QVBoxLayout, QWidget, QComboBox, QAction)
 from PyQt5.QtWidgets import QMainWindow,QWidget, QPushButton, QProgressBar
 from PyQt5.QtGui import QIcon
 import sys
@@ -582,10 +582,10 @@ class VideoWindow(QMainWindow):
         self.backToMenu.clicked.connect(self.exitCall)
 
         # Create exit action
-        # exitAction = QAction(QIcon('exit.png'), '&Exit', self)
-        # exitAction.setShortcut('Ctrl+Q')
-        # exitAction.setStatusTip('Exit application')
-        # exitAction.triggered.connect(self.exitCall)
+        exitAction = QAction(QIcon('exit.png'), '&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.exitCall)
 
         # Create a widget for window contents
         wid = QWidget(self)
@@ -636,7 +636,7 @@ class VideoWindow(QMainWindow):
 
 
     def exitCall(self):
-        self.hide()
+        self.close()
 
     def play(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
@@ -661,9 +661,23 @@ class VideoWindow(QMainWindow):
     def setPosition(self, position):
         self.mediaPlayer.setPosition(position)
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
     player = VideoWindow()
     player.resize(640, 480)
     player.show()
     sys.exit(app.exec_())
+
+def play_vid(video):
+    app2 = QApplication(sys.argv)
+    player = VideoWindow()
+    player.resize(640, 480)
+    player.openVideo(video)
+
+    player.show()
+    sys.exit(app2.exec_())
+
+
+
+if __name__ == '__main__':
+    main()

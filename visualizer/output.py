@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'untitled.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.1
-#
-# WARNING! All changes made in this file will be lost!
-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot
@@ -18,12 +10,13 @@ from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
         QPushButton, QSizePolicy, QSlider, QStyle, QVBoxLayout, QWidget)
 
+from visualizer.tsne_graph import Ui_tsne_view
 from visualizer.video_player_module import VideoWindow
 
 
 class Ui_NuScenesExplorer(object):
 
-    def setupUi(self, NuScenesExplorer, player=None):
+    def setupUi(self, NuScenesExplorer):
         NuScenesExplorer.setObjectName("NuScenesExplorer")
         NuScenesExplorer.resize(800, 600)
         NuScenesExplorer.setStyleSheet("QToolTip\n"
@@ -572,12 +565,25 @@ class Ui_NuScenesExplorer(object):
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         NuScenesExplorer.setCentralWidget(self.centralwidget)
+        self.dialog1 = VideoWindow()
+        self.dialog1.resize(960, 720)
+        self.dialog2 = Ui_tsne_view()
+
 
         self.retranslateUi(NuScenesExplorer)
-        # self.pushButton_4.clicked.connect(self.label.clear)
-        self.pushButton_2.clicked.connect(player.show)
+        self.pushButton_4.clicked.connect(self.openTSNEView)
+        self.pushButton_2.clicked.connect(self.openVideoPlayer)
 
         QtCore.QMetaObject.connectSlotsByName(NuScenesExplorer)
+
+    def  openVideoPlayer(self):
+        self.dialog1.show()
+
+    def openTSNEView(self):
+        MainWindow2 = QtWidgets.QMainWindow()
+        self.dialog2.setupUi(MainWindow2)
+        MainWindow2.show()
+
 
     def retranslateUi(self, NuScenesExplorer):
         _translate = QtCore.QCoreApplication.translate
@@ -594,9 +600,9 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_NuScenesExplorer()
-    player = VideoWindow()
-    player.resize(640, 480)
-    ui.setupUi(MainWindow, player)
+    # player = VideoWindow()
+    # player.resize(960, 720)
+    ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
 
