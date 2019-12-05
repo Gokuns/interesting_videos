@@ -32,10 +32,12 @@ class Ui_tsne_view(object):
         # features = np.asarray(fil)
         return fil
 
-    def partition_data(self, fil):
+    def partition_data(self, fil, mode):
         features = [fil[i]['features'] for i in range(len(fil))]
         names = [fil[i]['video'] for i in range(len(fil))]
-        labels = [fil[i]['poc_result'] for i in range(len(fil))]
+        labels = None
+        if mode:
+            labels = [fil[i]['poc_result'] for i in range(len(fil))]
         return features, names, labels
 
     def tsne(self, features, names, labels):
@@ -68,12 +70,12 @@ class Ui_tsne_view(object):
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
 
-        for i in range(len(labels)):
-            if labels[i] == 0:
-                labels[i] = 'black'
-            else:
-                labels[i] = 'red'
         if mode:
+            for i in range(len(labels)):
+                if labels[i] == 0:
+                    labels[i] = 'black'
+                else:
+                    labels[i] = 'red'
             self.plotWidget.canvas.axes.scatter(x_vals, y_vals, z_vals, 'o', picker=5, c=labels)
         else:
             self.plotWidget.canvas.axes.scatter(x_vals, y_vals, z_vals, 'o', picker=5)
@@ -86,7 +88,7 @@ class Ui_tsne_view(object):
         file = self.load_data()
         data = self.pca_data(file)  # uncomment this when needed
         # file = load_data('C:\\Users\\Goko\\Desktop\\data.json')
-        features, names, labels = self.partition_data(data)
+        features, names, labels = self.partition_data(data, config.argument_defaults["colored_graph"])
         x_vals, y_vals, z_vals = self.tsne(features, names, labels)
         self.plot_tnse(x_vals, y_vals, z_vals, names, labels, config.argument_defaults["colored_graph"])
 
