@@ -47,8 +47,10 @@ def aggregate_features(base_feature_path, database_path, mode, opt):
 
 poc_modes = ['density_based_both', 'number_based_both', 'number_based_one', 'density_based_one',
               'peak_number_both', 'peak_area_both', 'peak_number_one', 'peak_area_one']
-for mode in poc_modes:
-    change_poc(config.argument_defaults['video_data_path']
-                             .format(mode),
-               "./output_average_101_density_based_both.json",
-               "./output_average_101_{}.json".format(mode))
+
+if __name__ == '__main__':
+    for mode in poc_modes:
+        change_poc(config.argument_defaults['video_data_path']
+                                 .format(mode),
+                   "./output_average_101_density_based_both.json",
+                   "./output_average_101_{}.json".format(mode))

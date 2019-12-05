@@ -23,7 +23,8 @@ def train_epoch(epoch, data_loader, model, criterion, optimizer, opt,
         data_time.update(time.time() - end_time)
 
         if not opt.no_cuda:
-            targets = targets.cuda(async=True)
+            #targets = targets.cuda(async=True)
+            pass
         inputs = Variable(inputs)
         targets = Variable(targets)
         outputs = model(inputs)

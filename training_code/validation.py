@@ -21,7 +21,8 @@ def val_epoch(epoch, data_loader, model, criterion, opt, logger):
         data_time.update(time.time() - end_time)
 
         if not opt.no_cuda:
-            targets = targets.cuda(async=True)
+            #targets = targets.cuda(async=True)
+            pass
         inputs = Variable(inputs, volatile=True)
         targets = Variable(targets, volatile=True)
         outputs = model(inputs)

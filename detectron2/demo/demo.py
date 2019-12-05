@@ -157,8 +157,8 @@ if __name__ == "__main__":
                     output_file.write(vis_frame)
                 else:
                     #TODO commented out for it to run faster
-                    #cv2.namedWindow(basename, cv2.WINDOW_NORMAL)
-                    #cv2.imshow(basename, vis_frame)
+                    cv2.namedWindow(basename, cv2.WINDOW_NORMAL)
+                    cv2.imshow(basename, vis_frame)
                     if cv2.waitKey(1) == 27:
                         break  # esc to quit
 
