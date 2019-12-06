@@ -3,6 +3,7 @@ from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
                              QPushButton, QSizePolicy, QSlider, QStyle, QVBoxLayout, QWidget, QComboBox, QAction)
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow,QWidget, QPushButton, QProgressBar
 from PyQt5.QtGui import QIcon
 import sys
@@ -673,11 +674,10 @@ def play_vid(video):
     player = VideoWindow()
     player.resize(640, 480)
     player.openVideo(video)
-
     player.show()
     sys.exit(app2.exec_())
 
 
 
 if __name__ == '__main__':
-    main()
+    play_vid("scene-0001.mp4")

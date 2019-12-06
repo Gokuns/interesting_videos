@@ -8,8 +8,12 @@ from sklearn.manifold import TSNE
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from visualizer.video_player_module import play_vid, VideoWindow
 import json
 import config
+import pandas as pd
+import numpy as np
+
 
 
 class Ui_tsne_view(object):
@@ -17,7 +21,7 @@ class Ui_tsne_view(object):
     def pca_data(self, data):
         feature_vector_list = [video["features"] for video in data]
         features = StandardScaler().fit_transform(feature_vector_list)
-        pca = PCA(n_components=50)
+        pca = PCA(n_components=30)
         principal_components = pca.fit_transform(features).tolist()
         for i in range(len(data)):
             data[i]["features"] = principal_components[i]
@@ -25,7 +29,7 @@ class Ui_tsne_view(object):
             json.dump(data, outfile)
         return data
 
-    def load_data(self, path=config.argument_defaults['aggragation']):
+    def load_data(self, path=config.argument_defaults['aggregation'] + "/max_pool.json"):
         # load and create a list
         f = open(path)
         fil = json.load(f)
@@ -37,7 +41,8 @@ class Ui_tsne_view(object):
         names = [fil[i]['video'] for i in range(len(fil))]
         labels = None
         if mode:
-            labels = [fil[i]['poc_result'] for i in range(len(fil))]
+            pass
+            #labels = [fil[i]['poc_result'] for i in range(len(fil))]
         return features, names, labels
 
     def tsne(self, features, names, labels):
@@ -64,18 +69,33 @@ class Ui_tsne_view(object):
 
         config.argument_defaults['selected_scene'] = scene_name
         print(config.argument_defaults['selected_scene'])
-        # video_player_module.play_vid("scene-0003.mp4")
+        self.dialog1.openVideo(scene_name)
+        self.dialog1.show()
+        self.dialog1.setEnabled(True)
+        #play_vid(scene_name)
+
 
     def plot_tnse(self, x_vals, y_vals, z_vals, names, labels, mode):
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
+        color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', '#f60',
+                 'black']
+
+            #labels = [color[i] if labels[j]==i else 'black' for j in labels]
 
         if mode:
-            for i in range(len(labels)):
-                if labels[i] == 0:
-                    labels[i] = 'black'
-                else:
-                    labels[i] = 'red'
+            uniq = np.unique(labels)
+            for i in range(len(uniq)):
+                labels = [color[i] if j == i else j for j in labels]
+        #     for i in range(len(labels)):
+        #         if labels[i] == 0:
+        #             labels[i] = 'black'
+        #         elif labels[i] == 1:
+        #             labels[i] = 'red'
+        #         elif labels[i] == 2:
+        #             labels[i] = 'green'
+        #         else:
+        #             labels[i] = 'blue'
             self.plotWidget.canvas.axes.scatter(x_vals, y_vals, z_vals, 'o', picker=5, c=labels)
         else:
             self.plotWidget.canvas.axes.scatter(x_vals, y_vals, z_vals, 'o', picker=5)
@@ -84,13 +104,20 @@ class Ui_tsne_view(object):
                                                                     lambda event: self.onpick(event, names))
         self.plotWidget.canvas.draw()
 
+    def cluster_data(self,features,names,num_clusters):
+        from sklearn.cluster import KMeans
+        kmeans = KMeans(n_clusters=num_clusters, random_state=0, max_iter=1000, init='random', n_init=100).fit(features)
+        labels = kmeans.labels_
+        return labels.tolist()
+
     def refresh_plot(self):
         file = self.load_data()
         data = self.pca_data(file)  # uncomment this when needed
         # file = load_data('C:\\Users\\Goko\\Desktop\\data.json')
-        features, names, labels = self.partition_data(data, config.argument_defaults["colored_graph"])
+        features, names, labels = self.partition_data(data, self.colorSpinBox.value())
+        labels = self.cluster_data(features,names,self.clusterSpinBox.value())
         x_vals, y_vals, z_vals = self.tsne(features, names, labels)
-        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, config.argument_defaults["colored_graph"])
+        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, self.colorSpinBox.value())
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -626,6 +653,7 @@ class Ui_tsne_view(object):
         self.horizontalLayout.addWidget(self.plotWidget)
         self.formLayout = QtWidgets.QFormLayout()
         self.formLayout.setObjectName("formLayout")
+
         self.iterationsLabel = QtWidgets.QLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -634,6 +662,7 @@ class Ui_tsne_view(object):
         self.iterationsLabel.setSizePolicy(sizePolicy)
         self.iterationsLabel.setObjectName("iterationsLabel")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.iterationsLabel)
+
         self.iterationsSpinBox = QtWidgets.QSpinBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -647,6 +676,7 @@ class Ui_tsne_view(object):
         self.iterationsSpinBox.setDisplayIntegerBase(10)
         self.iterationsSpinBox.setObjectName("iterationsSpinBox")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.iterationsSpinBox)
+
         self.perplexityLabel = QtWidgets.QLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -655,17 +685,19 @@ class Ui_tsne_view(object):
         self.perplexityLabel.setSizePolicy(sizePolicy)
         self.perplexityLabel.setObjectName("perplexityLabel")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.perplexityLabel)
+
         self.perplexitySpinBox = QtWidgets.QSpinBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.perplexitySpinBox.sizePolicy().hasHeightForWidth())
         self.perplexitySpinBox.setSizePolicy(sizePolicy)
-        self.perplexitySpinBox.setMinimum(5)
+        self.perplexitySpinBox.setMinimum(2)
         self.perplexitySpinBox.setMaximum(50)
         self.perplexitySpinBox.setProperty("value", 30)
         self.perplexitySpinBox.setObjectName("perplexitySpinBox")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.perplexitySpinBox)
+
         self.learningRateSpinBox = QtWidgets.QSpinBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -675,10 +707,11 @@ class Ui_tsne_view(object):
         self.learningRateSpinBox.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.learningRateSpinBox.setMinimum(10)
         self.learningRateSpinBox.setMaximum(1000)
-        self.learningRateSpinBox.setProperty("value", 200)
+        self.learningRateSpinBox.setProperty("value", 20)
         self.learningRateSpinBox.setDisplayIntegerBase(10)
         self.learningRateSpinBox.setObjectName("learningRateSpinBox")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.learningRateSpinBox)
+
         self.earlyExaggerationLabel = QtWidgets.QLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -687,15 +720,59 @@ class Ui_tsne_view(object):
         self.earlyExaggerationLabel.setSizePolicy(sizePolicy)
         self.earlyExaggerationLabel.setObjectName("earlyExaggerationLabel")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.earlyExaggerationLabel)
+
         self.earlyExaggerationSpinBox = QtWidgets.QSpinBox(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.earlyExaggerationSpinBox.sizePolicy().hasHeightForWidth())
         self.earlyExaggerationSpinBox.setSizePolicy(sizePolicy)
-        self.earlyExaggerationSpinBox.setProperty("value", 12)
+        self.earlyExaggerationSpinBox.setProperty("value", 5)
         self.earlyExaggerationSpinBox.setObjectName("earlyExaggerationSpinBox")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.earlyExaggerationSpinBox)
+
+        self.cluster_label = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster_label.sizePolicy().hasHeightForWidth())
+        self.cluster_label.setSizePolicy(sizePolicy)
+        self.cluster_label.setObjectName("cluster_label")
+        self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.cluster_label)
+
+        self.clusterSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.clusterSpinBox.sizePolicy().hasHeightForWidth())
+        self.clusterSpinBox.setSizePolicy(sizePolicy)
+        self.clusterSpinBox.setMinimum(2)
+        self.clusterSpinBox.setMaximum(8)
+        self.clusterSpinBox.setProperty("value", 3)
+        self.clusterSpinBox.setObjectName("clusterSpinBox")
+        self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.clusterSpinBox)
+
+        self.coloredLabel = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.coloredLabel.sizePolicy().hasHeightForWidth())
+        self.coloredLabel.setSizePolicy(sizePolicy)
+        self.coloredLabel.setObjectName("coloredLabel")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.coloredLabel)
+
+        self.colorSpinBox = QtWidgets.QSpinBox(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.colorSpinBox.sizePolicy().hasHeightForWidth())
+        self.colorSpinBox.setSizePolicy(sizePolicy)
+        self.colorSpinBox.setMinimum(0)
+        self.colorSpinBox.setMaximum(1)
+        self.colorSpinBox.setProperty("value", 0)
+        self.colorSpinBox.setObjectName("colorSpinBox")
+        self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.colorSpinBox)
+
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -703,7 +780,8 @@ class Ui_tsne_view(object):
         sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
         self.pushButton.setSizePolicy(sizePolicy)
         self.pushButton.setObjectName("pushButton")
-        self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.pushButton)
+        self.formLayout.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.pushButton)
+
         self.learningRateLabel = QtWidgets.QLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -712,6 +790,8 @@ class Ui_tsne_view(object):
         self.learningRateLabel.setSizePolicy(sizePolicy)
         self.learningRateLabel.setObjectName("learningRateLabel")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.learningRateLabel)
+
+
         self.horizontalLayout.addLayout(self.formLayout)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -719,6 +799,8 @@ class Ui_tsne_view(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.dialog1 = VideoWindow()
+        self.dialog1.resize(960, 720)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -728,6 +810,8 @@ class Ui_tsne_view(object):
         self.earlyExaggerationLabel.setText(_translate("MainWindow", "Early Exaggeration"))
         self.pushButton.setText(_translate("MainWindow", "Refresh"))
         self.learningRateLabel.setText(_translate("MainWindow", "Learning Rate"))
+        self.cluster_label.setText(_translate("MainWindow", "Number of clusters"))
+        self.coloredLabel.setText(_translate("MainWindow", "Coloring mode"))
         MainWindow.addToolBar(NavigationToolbar(self.plotWidget.canvas, MainWindow))
 
 
@@ -742,4 +826,4 @@ if __name__ == "__main__":
     ui = Ui_tsne_view()
     ui.setupUi(MainWindow)
     MainWindow.show()
-    sys.exit(app.exec_())
+    #sys.exit(app.exec_())

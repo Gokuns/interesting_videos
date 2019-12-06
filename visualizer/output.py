@@ -578,6 +578,8 @@ class Ui_NuScenesExplorer(object):
 
     def  openVideoPlayer(self):
         self.dialog1.show()
+        self.dialog1.setEnabled(True)
+        
 
     def openTSNEView(self):
         MainWindow2 = QtWidgets.QMainWindow()
