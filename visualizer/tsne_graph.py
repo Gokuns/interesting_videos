@@ -78,7 +78,7 @@ class Ui_tsne_view(object):
     def plot_tnse(self, x_vals, y_vals, z_vals, names, labels, mode):
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
-        color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', '#f60',
+        color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
                  'black']
 
             #labels = [color[i] if labels[j]==i else 'black' for j in labels]
@@ -769,7 +769,7 @@ class Ui_tsne_view(object):
         self.colorSpinBox.setSizePolicy(sizePolicy)
         self.colorSpinBox.setMinimum(0)
         self.colorSpinBox.setMaximum(1)
-        self.colorSpinBox.setProperty("value", 0)
+        self.colorSpinBox.setProperty("value", 1)
         self.colorSpinBox.setObjectName("colorSpinBox")
         self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.colorSpinBox)
 
