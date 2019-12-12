@@ -78,7 +78,7 @@ if __name__ == "__main__":
     for video_name in videos:
         feats.features = []
         video_name= video_name.replace('\n', '')
-        args = opt_creator.create_opt(argument_defaults['export_path'] + video_name)
+        args = opt_creator.create_opt(argument_defaults['export_path'] + video_name, argument_defaults['output_path'] + video_name)
         logger = setup_logger()
         logger.info("Arguments: " + str(args))
         cfg = setup_cfg(args)
@@ -134,10 +134,11 @@ if __name__ == "__main__":
             if args.output:
                 if os.path.isdir(args.output):
                     output_fname = os.path.join(args.output, basename)
-                    output_fname = os.path.splitext(output_fname)[0] + ".mkv"
+                    output_fname = os.path.splitext(output_fname)[0] + ".mp4"
                 else:
                     output_fname = args.output
-                assert not os.path.isfile(output_fname), output_fname
+                if os.path.isfile(output_fname):
+                    continue
                 output_file = cv2.VideoWriter(
                     filename=output_fname,
                     # some installation of opencv may not support x264 (due to its license),
@@ -157,8 +158,8 @@ if __name__ == "__main__":
                     output_file.write(vis_frame)
                 else:
                     #TODO commented out for it to run faster
-                    #cv2.namedWindow(basename, cv2.WINDOW_NORMAL)
-                    # cv2.imshow(basename, vis_frame)
+                    cv2.namedWindow(basename, cv2.WINDOW_NORMAL)
+                    cv2.imshow(basename, vis_frame)
                     if cv2.waitKey(1) == 27:
                         break  # esc to quit
 

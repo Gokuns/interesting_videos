@@ -11,4 +11,5 @@ argument_defaults = dict(
     colored_graph=True,
     extractor="E:\\features\\",
     aggregation = "E:\\agg\\",
+    output_path='E:\\outputs\\'
 )
