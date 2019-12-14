@@ -9,11 +9,18 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import PyQt5
-
+import cv2
+import os
+import _thread
+import threading
+import detectron2.demo.demo as demo
 
 class Ui_Dialog(object):
 
+
+
     def setupUi(self, Dialog):
+
         Dialog.setObjectName("Dialog")
         Dialog.resize(500, 350)
         Dialog.setMaximumSize(QtCore.QSize(500, 350))
@@ -704,6 +711,13 @@ class Ui_Dialog(object):
 
         self.clear_button.clicked.connect(self.clear_items)
         self.remove_button.clicked.connect(self.remove_item)
+        self.add_button.clicked.connect(self.open)
+        self.dialog_buttons.accepted.connect(self.accept)
+        self.dialog_buttons.rejected.connect(self.close_click)
+
+        self.count = 0
+        self.total_frame = 0
+
 
 
     def retranslateUi(self, Dialog):
@@ -734,26 +748,65 @@ class Ui_Dialog(object):
         def dropEvent(self, event):
             files = [str(u.toLocalFile()) for u in event.mimeData().urls()]
 
-            for f in files:
-                print(f)
-                self.listW.addItem(f)
+            for vid in files:
+                items = self.listW.findItems(vid, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    continue
+                filename, file_extension = os.path.splitext(vid)
+                if file_extension==".mp4":
+                    self.listW.addItem(vid)
 
 
     def remove_item(self):
         self.list_view.takeItem(self.list_view.currentRow())
 
-    def add_item(self):
-        pass
-
     def clear_items(self):
         self.list_view.clear()
 
     def open(self):
-        fileName = QtGui.QFileDialog.getOpenFileName(self, 'OpenFile')
-        self.myTextBox.setText(fileName)
-        print(fileName)
+        fileName = QtWidgets.QFileDialog.getOpenFileNames(self.widget, 'OpenFile', '../', "Video Files (*.mp4)")
+        if type(fileName[0]) == type([]):
+            for vid in fileName[0]:
+                items = self.list_view.findItems(vid, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    continue
+                self.list_view.addItem(vid)
 
+    def close_click(self):
+        self.stackedWidget.close()
 
+    def accept(self):
+        for i in range(self.list_view.count()):
+            vid = self.list_view.item(i)
+            vid = str(vid.text())
+            #print(vid)
+            cap = cv2.VideoCapture(vid)
+            self.total_frame += int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        #print(self.total_frame)
+        if self.total_frame<=0:
+            self.widget.close()
+        #self.update_prog("asd", 2, 35, 232, 385,5)
+        self.stackedWidget.setCurrentIndex(1)
+        itemsTextList = [str(self.list_view.item(i).text()) for i in
+                         range(self.list_view.count())]
+        th1 = threading.Thread(target=demo.run(self,itemsTextList))
+        th1.start()
+
+    def prog_str(self, name, vid, curr_frame, vid_frame, frame_count,videos):
+        result = ""
+        result += "current video name: {}\n".format(name)
+        result += "video: {}/{} \n".format(vid,videos)
+        result += "frame: {}/{}\n".format(curr_frame,vid_frame)
+        result += "total: {}/{} frames".format(frame_count,self.total_frame)
+
+        return result
+
+    def update_prog(self, name, vid, curr_frame, vid_frame, frame_count,videos):
+        text = self.prog_str(name, vid, curr_frame, vid_frame,frame_count,videos)
+        self.load_info_label.setText(text)
+        progress = (frame_count/self.total_frame)*100
+        print(progress)
+        self.prog_bar.setValue(progress)
 
 
 if __name__ == "__main__":
@@ -765,7 +818,6 @@ if __name__ == "__main__":
 
     ui = Ui_Dialog()
     ui.setupUi(MainWindow)
-    MainWindow.setAcceptDrops(True)
     MainWindow.show()
 
-    sys.exit(app.exec_())
+    #sys.exit(app.exec_())

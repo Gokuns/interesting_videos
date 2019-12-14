@@ -23,6 +23,7 @@ import ntpath
 from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib
+from visualizer.add import Ui_Dialog
 
 matplotlib.use('Qt5Agg')
 
@@ -1105,6 +1106,10 @@ class Ui_MainWindow(object):
         self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
         self.mediaPlayerOriginal.durationChanged.connect(self.durationChanged)
 
+        self.adderWin = QtWidgets.QMainWindow()
+        self.adder = Ui_Dialog()
+        self.addvideoButton.clicked.connect(self.openAdder)
+
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
@@ -1132,6 +1137,12 @@ class Ui_MainWindow(object):
     def setPosition(self, position):
         self.mediaPlayerPanoptic.setPosition(position)
         self.mediaPlayerOriginal.setPosition(position)
+
+    def openAdder(self):
+
+        self.adder.setupUi(self.adderWin)
+        self.adderWin.show()
+
 
 
 
