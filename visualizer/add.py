@@ -8,9 +8,11 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import PyQt5
 
 
 class Ui_Dialog(object):
+
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(500, 350)
@@ -568,7 +570,7 @@ class Ui_Dialog(object):
         self.add_list_lay = QtWidgets.QHBoxLayout()
         self.add_list_lay.setContentsMargins(2, 2, -1, -1)
         self.add_list_lay.setObjectName("add_list_lay")
-        self.list_view = QtWidgets.QListView(self.widget)
+        self.list_view = QtWidgets.QListWidget(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -606,7 +608,12 @@ class Ui_Dialog(object):
         self.add_buttons_lay.addWidget(self.clear_button)
         self.add_list_lay.addLayout(self.add_buttons_lay)
         self.add_upper_lay.addLayout(self.add_list_lay)
-        self.drag_drop = QtWidgets.QLabel(self.widget)
+
+
+        #self.drag_drop = QtWidgets.QLabel(self.widget)
+        #self.drag_drop.setAcceptDrops(True)
+        self.drag_drop = self.Drag_label(self.widget,self.list_view)
+
         self.drag_drop.setMinimumSize(QtCore.QSize(0, 70))
         self.drag_drop.setFrameShape(QtWidgets.QFrame.Box)
         self.drag_drop.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -644,7 +651,7 @@ class Ui_Dialog(object):
         self.load_info_label.setObjectName("load_info_label")
         self.load_upper_lay.addWidget(self.load_info_label)
         self.prog_bar = QtWidgets.QProgressBar(self.load_page)
-        self.prog_bar.setProperty("value", 24)
+        self.prog_bar.setProperty("value", 0)
         self.prog_bar.setAlignment(QtCore.Qt.AlignCenter)
         self.prog_bar.setObjectName("prog_bar")
         self.load_upper_lay.addWidget(self.prog_bar)
@@ -687,11 +694,17 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.addWidget(self.stackedWidget)
         spacerItem6 = QtWidgets.QSpacerItem(0, 17, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem6)
-        self.add_page.setAcceptDrops(True)
+
 
         self.retranslateUi(Dialog)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+        self.selected_item = None
+
+        self.clear_button.clicked.connect(self.clear_items)
+        self.remove_button.clicked.connect(self.remove_item)
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -704,16 +717,42 @@ class Ui_Dialog(object):
         self.succ_info_label.setText(_translate("Dialog", "Videos are added successfully."))
         self.finish_button.setText(_translate("Dialog", "Finish"))
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.accept()
-        else:
-            event.ignore()
+    class Drag_label(QtWidgets.QLabel):
 
-    def dropEvent(self, event):
-        files = [str(u.toLocalFile()) for u in event.mimeData().urls()]
-        for f in files:
-            print(f)
+        def __init__(self,parent,listW):
+            super().__init__(parent)
+            self.listW = listW
+
+            self.setAcceptDrops(True)
+
+        def dragEnterEvent(self, event):
+            if event.mimeData().hasUrls():
+                event.accept()
+            else:
+                event.ignore()
+
+        def dropEvent(self, event):
+            files = [str(u.toLocalFile()) for u in event.mimeData().urls()]
+
+            for f in files:
+                print(f)
+                self.listW.addItem(f)
+
+
+    def remove_item(self):
+        self.list_view.takeItem(self.list_view.currentRow())
+
+    def add_item(self):
+        pass
+
+    def clear_items(self):
+        self.list_view.clear()
+
+    def open(self):
+        fileName = QtGui.QFileDialog.getOpenFileName(self, 'OpenFile')
+        self.myTextBox.setText(fileName)
+        print(fileName)
+
 
 
 
@@ -723,7 +762,10 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
 
+
     ui = Ui_Dialog()
     ui.setupUi(MainWindow)
+    MainWindow.setAcceptDrops(True)
     MainWindow.show()
+
     sys.exit(app.exec_())
