@@ -553,6 +553,8 @@ class Ui_MainWindow(object):
                                   .format(config.argument_defaults['poc_mode']))
         self.mediaPlayerOriginal = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayerPanoptic = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.pause_icon = MainWindow.style().standardIcon(QStyle.SP_MediaPause)
+        self.play_icon = MainWindow.style().standardIcon(QStyle.SP_MediaPlay)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -957,10 +959,9 @@ class Ui_MainWindow(object):
 
         self.mediaPlayerOriginal.setVideoOutput(originalVideoWidget)
         self.mediaPlayerPanoptic.setVideoOutput(panopticVideoWidget)
-        # self.mediaPlayerOriginal.stateChanged.connect(self.mediaStateChanged)
-        # self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
-        # self.mediaPlayerOriginal.durationChanged.connect(self.durationChanged)
-        #
+        self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
+        self.mediaPlayerOriginal.durationChanged.connect(self.durationChanged)
+
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
@@ -969,18 +970,15 @@ class Ui_MainWindow(object):
     def play(self):
         if self.mediaPlayerOriginal.state() == QMediaPlayer.PlayingState:
             self.mediaPlayerOriginal.pause()
+            self.playButton.setIcon(self.play_icon)
+
             self.mediaPlayerPanoptic.pause()
         else:
             self.mediaPlayerOriginal.play()
+            self.playButton.setIcon(self.pause_icon)
+
             self.mediaPlayerPanoptic.play()
 
-    def mediaStateChanged(self, state):
-        if self.mediaPlayerOriginal.state() == QMediaPlayer.PlayingState:
-            self.playButton.setIcon(
-                    MainWindow.style().standardIcon(QStyle.SP_MediaPause))
-        else:
-            self.playButton.setIcon(
-                    MainWindow.style().standardIcon(QStyle.SP_MediaPlay))
 
     def positionChanged(self, position):
         self.progressBar.setValue(position)
@@ -989,8 +987,9 @@ class Ui_MainWindow(object):
         self.progressBar.setRange(0, duration)
 
     def setPosition(self, position):
-        print(position)
-    # self.mediaPlayerPanoptic.setPosition(position)
+        self.mediaPlayerPanoptic.setPosition(position)
+        self.mediaPlayerOriginal.setPosition(position)
+
 
 
     def openVideo(self, text):
