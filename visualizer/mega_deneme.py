@@ -686,6 +686,7 @@ class Ui_MainWindow(object):
         self.toolboxLayout.addWidget(self.addvideoButton)
         self.savePlotButton = QtWidgets.QPushButton(self.centralwidget)
         self.savePlotButton.setObjectName("savePlotButton")
+        self.savePlotButton.clicked.connect(self.savePlot)
         self.toolboxLayout.addWidget(self.savePlotButton)
         self.singleViewButton = QtWidgets.QPushButton(self.centralwidget)
         self.singleViewButton.setObjectName("singleViewButton")
@@ -1132,6 +1133,12 @@ class Ui_MainWindow(object):
     def setPosition(self, position):
         self.mediaPlayerPanoptic.setPosition(position)
         self.mediaPlayerOriginal.setPosition(position)
+
+
+    def savePlot(self):
+        self.plotWidget.canvas.figure.savefig('asd.png')
+
+
 
 
 
