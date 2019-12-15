@@ -27,6 +27,7 @@ from visualizer.add import Ui_Dialog
 from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
+import matplotlib.colors as c
 
 from sklearn.manifold import TSNE
 
@@ -44,6 +45,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_MainWindow(object):
+
+
     def pca_data(self, data):
         feature_vector_list = [video["features"] for video in data]
         features = StandardScaler().fit_transform(feature_vector_list)
@@ -69,6 +72,7 @@ class Ui_MainWindow(object):
         if mode:
             pass
             #labels = [fil[i]['poc_result'] for i in range(len(fil))]
+        self.names = names
         return features, names, labels
 
     def tsne(self, features, names, labels):
@@ -103,15 +107,14 @@ class Ui_MainWindow(object):
     def plot_tnse(self, x_vals, y_vals, z_vals, names, labels, mode):
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
-        color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
-                 'black']
+
 
             #labels = [color[i] if labels[j]==i else 'black' for j in labels]
 
         if mode:
             uniq = np.unique(labels)
             for i in range(len(uniq)):
-                labels = [color[i] if j == i else j for j in labels]
+                labels = [self.color[i] if j == i else j for j in labels]
         #     for i in range(len(labels)):
         #         if labels[i] == 0:
         #             labels[i] = 'black'
@@ -127,6 +130,7 @@ class Ui_MainWindow(object):
             # ax.annotate(names[i], (x_vals[i], y_vals[i]))
         cid = self.plotWidget.canvas.axes.figure.canvas.mpl_connect('pick_event',
                                                                     lambda event: self.onpick(event, names))
+        self.labels = labels
         self.plotWidget.canvas.draw()
 
     def cluster_data(self,features,names,num_clusters):
@@ -149,7 +153,7 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1209, 857)
+        MainWindow.resize(1400, 900)
         MainWindow.setStyleSheet("QToolTip\n"
 "{\n"
 "     border: 1px solid black;\n"
@@ -1116,6 +1120,12 @@ class Ui_MainWindow(object):
         self.singleViewButton.clicked.connect(self.setUpSingleView)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.ind = -1
+        self.old_ind = -1
+        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
+                 'black']
+        self.names = []
+
     def play(self):
         if self.mediaPlayerOriginal.state() == QMediaPlayer.PlayingState:
             self.mediaPlayerOriginal.pause()
@@ -1148,6 +1158,24 @@ class Ui_MainWindow(object):
 
 
     def openVideo(self, text):
+        if self.plotWidget.canvas.axes.collections:
+            if self.ind>=0:
+                col = c.to_rgba(self.labels[self.ind])
+                self.plotWidget.canvas.axes.collections[0]._facecolor3d[
+                self.ind, :] = col
+                self.plotWidget.canvas.axes.collections[0]._edgecolor3d[
+                self.ind, :] = col
+            print("figure is on")
+            self.ind = self.names.index(text)
+            self.plotWidget.canvas.axes.collections[0]._facecolor3d[self.ind,:] = (1, 1, 1, 1)
+            self.plotWidget.canvas.axes.collections[0]._edgecolor3d[self.ind,:] = (1, 1, 1, 1)
+            self.plotWidget.canvas.draw()
+
+
+
+        else:
+            print("no figure there son")
+
         fileName= config.argument_defaults['export_path']+'/'+text
         panopticFilename = config.argument_defaults['output_path']+'/'+text
 
@@ -1157,6 +1185,7 @@ class Ui_MainWindow(object):
             self.mediaPlayerPanoptic.setMedia(
                 QMediaContent(QUrl.fromLocalFile(panopticFilename)))
             self.playButton.setEnabled(True)
+            0
 
     def setUpClusterView(self):
         self.sceneComboBox.setEnabled(False)

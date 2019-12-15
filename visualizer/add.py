@@ -398,7 +398,7 @@ class Ui_Dialog(object):
 "{\n"
 "    background-color: #d7801a;\n"
 "    width: 2.15px;\n"
-"    margin: 0.5px;\n"
+"    margin: 0.0px;\n"
 "}\n"
 "\n"
 "QTabBar::tab {\n"
