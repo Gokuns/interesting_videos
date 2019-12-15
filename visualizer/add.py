@@ -8,10 +8,20 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import PyQt5
+import cv2
+import os
+import _thread
+import threading
+import detectron2.demo.demo as demo
+from config import argument_defaults as ad
 
 class Ui_Dialog(object):
+
+
+
     def setupUi(self, Dialog):
+
         Dialog.setObjectName("Dialog")
         Dialog.resize(500, 350)
         Dialog.setMaximumSize(QtCore.QSize(500, 350))
@@ -568,7 +578,7 @@ class Ui_Dialog(object):
         self.add_list_lay = QtWidgets.QHBoxLayout()
         self.add_list_lay.setContentsMargins(2, 2, -1, -1)
         self.add_list_lay.setObjectName("add_list_lay")
-        self.list_view = QtWidgets.QListView(self.widget)
+        self.list_view = QtWidgets.QListWidget(self.widget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -606,7 +616,12 @@ class Ui_Dialog(object):
         self.add_buttons_lay.addWidget(self.clear_button)
         self.add_list_lay.addLayout(self.add_buttons_lay)
         self.add_upper_lay.addLayout(self.add_list_lay)
-        self.drag_drop = QtWidgets.QLabel(self.widget)
+
+
+        #self.drag_drop = QtWidgets.QLabel(self.widget)
+        #self.drag_drop.setAcceptDrops(True)
+        self.drag_drop = self.Drag_label(self.widget,self.list_view)
+
         self.drag_drop.setMinimumSize(QtCore.QSize(0, 70))
         self.drag_drop.setFrameShape(QtWidgets.QFrame.Box)
         self.drag_drop.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -644,7 +659,7 @@ class Ui_Dialog(object):
         self.load_info_label.setObjectName("load_info_label")
         self.load_upper_lay.addWidget(self.load_info_label)
         self.prog_bar = QtWidgets.QProgressBar(self.load_page)
-        self.prog_bar.setProperty("value", 24)
+        self.prog_bar.setProperty("value", 0)
         self.prog_bar.setAlignment(QtCore.Qt.AlignCenter)
         self.prog_bar.setObjectName("prog_bar")
         self.load_upper_lay.addWidget(self.prog_bar)
@@ -687,11 +702,24 @@ class Ui_Dialog(object):
         self.horizontalLayout_5.addWidget(self.stackedWidget)
         spacerItem6 = QtWidgets.QSpacerItem(0, 17, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem6)
-        self.add_page.setAcceptDrops(True)
+
 
         self.retranslateUi(Dialog)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+        self.selected_item = None
+
+        self.clear_button.clicked.connect(self.clear_items)
+        self.remove_button.clicked.connect(self.remove_item)
+        self.add_button.clicked.connect(self.open)
+        self.dialog_buttons.accepted.connect(self.accept)
+        self.dialog_buttons.rejected.connect(self.close_click)
+
+        self.count = 0
+        self.total_frame = 0
+
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -704,17 +732,83 @@ class Ui_Dialog(object):
         self.succ_info_label.setText(_translate("Dialog", "Videos are added successfully."))
         self.finish_button.setText(_translate("Dialog", "Finish"))
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls():
-            event.accept()
-        else:
-            event.ignore()
+    class Drag_label(QtWidgets.QLabel):
 
-    def dropEvent(self, event):
-        files = [str(u.toLocalFile()) for u in event.mimeData().urls()]
-        for f in files:
-            print(f)
+        def __init__(self,parent,listW):
+            super().__init__(parent)
+            self.listW = listW
 
+            self.setAcceptDrops(True)
+
+        def dragEnterEvent(self, event):
+            if event.mimeData().hasUrls():
+                event.accept()
+            else:
+                event.ignore()
+
+        def dropEvent(self, event):
+            files = [str(u.toLocalFile()) for u in event.mimeData().urls()]
+
+            for vid in files:
+                items = self.listW.findItems(vid, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    continue
+                filename, file_extension = os.path.splitext(vid)
+                if file_extension==".mp4":
+                    self.listW.addItem(vid)
+
+
+    def remove_item(self):
+        self.list_view.takeItem(self.list_view.currentRow())
+
+    def clear_items(self):
+        self.list_view.clear()
+
+    def open(self):
+        fileName = QtWidgets.QFileDialog.getOpenFileNames(self.widget, 'OpenFile', '../', "Video Files (*.mp4)")
+        if type(fileName[0]) == type([]):
+            for vid in fileName[0]:
+                items = self.list_view.findItems(vid, QtCore.Qt.MatchExactly)
+                if len(items) > 0:
+                    continue
+                self.list_view.addItem(vid)
+
+    def close_click(self):
+        self.stackedWidget.close()
+
+    def accept(self):
+        for i in range(self.list_view.count()):
+            vid = self.list_view.item(i)
+            vid = str(vid.text())
+            #print(vid)
+            cap = cv2.VideoCapture(vid)
+            self.total_frame += int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        #print(self.total_frame)
+        if self.total_frame<=0:
+            self.widget.close()
+        #self.update_prog("asd", 2, 35, 232, 385,5)
+        self.stackedWidget.setCurrentIndex(1)
+        itemsTextList = [str(self.list_view.item(i).text()) for i in
+                         range(self.list_view.count())]
+        th1 = threading.Thread(target=demo.run, args=(self,itemsTextList))
+        th1.start()
+        ad['threads'].append(th1)
+
+    def prog_str(self, name, vid, curr_frame, vid_frame, frame_count,videos):
+        result = ""
+        result += "current video name: {}\n".format(name)
+        result += "video: {}/{} \n".format(vid,videos)
+        result += "frame: {}/{}\n".format(curr_frame,vid_frame)
+        result += "total: {}/{} frames".format(frame_count,self.total_frame)
+
+        return result
+
+    def update_prog(self, name, vid, curr_frame, vid_frame, frame_count,videos):
+        text = self.prog_str(name, vid, curr_frame, vid_frame,frame_count,videos)
+        self.load_info_label.setText(text)
+        progress = (frame_count/self.total_frame)*100
+        print(progress)
+        self.prog_bar.setValue(progress)
 
 
 if __name__ == "__main__":
@@ -723,7 +817,9 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
 
+
     ui = Ui_Dialog()
     ui.setupUi(MainWindow)
     MainWindow.show()
-    sys.exit(app.exec_())
+
+    #sys.exit(app.exec_())

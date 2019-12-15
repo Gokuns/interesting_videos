@@ -23,8 +23,10 @@ import ntpath
 from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib
-
+from visualizer.add import Ui_Dialog
+from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
+import threading
 
 from sklearn.manifold import TSNE
 
@@ -1106,6 +1108,10 @@ class Ui_MainWindow(object):
         self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
         self.mediaPlayerOriginal.durationChanged.connect(self.durationChanged)
 
+        self.adderWin = QtWidgets.QMainWindow()
+        self.adder = Ui_Dialog()
+        self.addvideoButton.clicked.connect(self.openAdder)
+
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
@@ -1133,6 +1139,12 @@ class Ui_MainWindow(object):
     def setPosition(self, position):
         self.mediaPlayerPanoptic.setPosition(position)
         self.mediaPlayerOriginal.setPosition(position)
+
+    def openAdder(self):
+
+        self.adder.setupUi(self.adderWin)
+        self.adderWin.show()
+
 
 
     def savePlot(self):
@@ -1193,8 +1205,7 @@ class Ui_MainWindow(object):
         self.setUpSingleView()
 from visualizer.mplwidget import MplWidget
 
-
-if __name__ == "__main__":
+def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
@@ -1202,3 +1213,11 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    th2 = threading.Thread(target=main())
+    th2.start()
+    ad['threads'].append(th2)
+    for a in ad['threads']:
+        a.join()

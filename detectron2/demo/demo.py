@@ -7,6 +7,8 @@ import time
 import cv2
 import tqdm
 import json
+from pathlib import Path
+
 from config import argument_defaults
 
 from detectron2.detectron2.config import get_cfg
@@ -15,7 +17,7 @@ from detectron2.detectron2.utils.logger import setup_logger
 from detectron2 import opt_creator
 
 
-from predictor import VisualizationDemo
+from detectron2.demo.predictor import VisualizationDemo
 
 # constants
 WINDOW_NAME = "COCO detections"
@@ -65,20 +67,23 @@ def get_parser():
     )
     return parser
 
-
-if __name__ == "__main__":
+def run(object, videos):
+    WINDOW_NAME = "COCO detections"
     mp.set_start_method("spawn", force=True)
     #args = get_parser().parse_args()
     feats = opt_creator.FeatureBearer.getInstance()
     #TODO add a for loop for every scene and rerun main
-    with open("input") as f:
-        videos = f.readlines()
+    # with open("input") as f:
+    #     videos = f.readlines()
     #video_name = "scene_1"
-
+    curr_vid = 0
+    frame_count = 0
     for video_name in videos:
+        vid_path = Path(video_name)
+        curr_vid += 1
         feats.features = []
         video_name= video_name.replace('\n', '')
-        args = opt_creator.create_opt(argument_defaults['export_path'] + video_name, argument_defaults['output_path'] + video_name)
+        args = opt_creator.create_opt(video_name, argument_defaults['output_path'] + vid_path.name)
         logger = setup_logger()
         logger.info("Arguments: " + str(args))
         cfg = setup_cfg(args)
@@ -152,8 +157,13 @@ if __name__ == "__main__":
                 continue
             #assert os.path.isfile(args.video_input)
 
-
+            curr_frame=0
             for vis_frame in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
+                curr_frame+=1
+                frame_count+=1
+
+                object.update_prog(video_name, curr_vid, curr_frame, num_frames, frame_count, len(videos))
+
                 if args.output:
                     output_file.write(vis_frame)
                 else:
@@ -166,10 +176,13 @@ if __name__ == "__main__":
             output = {video_name: feats.features}
 
             video.release()
-            with open(argument_defaults['extractor'] + os.path.splitext(video_name)[0] + '.json', 'w') as outfile:
+            with open(argument_defaults['extractor'] + vid_path.stem+ '.json', 'w') as outfile:
                 json.dump(output, outfile)
 
             if args.output:
                 output_file.release()
             else:
                 cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    run()
