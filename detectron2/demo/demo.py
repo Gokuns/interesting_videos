@@ -176,7 +176,7 @@ def run(object, videos):
             output = {video_name: feats.features}
 
             video.release()
-            with open(argument_defaults['extractor'] + os.path.splitext(video_name)[0] + '.json', 'w') as outfile:
+            with open(argument_defaults['extractor'] + vid_path.stem+ '.json', 'w') as outfile:
                 json.dump(output, outfile)
 
             if args.output:

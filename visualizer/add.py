@@ -14,6 +14,7 @@ import os
 import _thread
 import threading
 import detectron2.demo.demo as demo
+from config import argument_defaults as ad
 
 class Ui_Dialog(object):
 
@@ -789,8 +790,9 @@ class Ui_Dialog(object):
         self.stackedWidget.setCurrentIndex(1)
         itemsTextList = [str(self.list_view.item(i).text()) for i in
                          range(self.list_view.count())]
-        th1 = threading.Thread(target=demo.run(self,itemsTextList))
+        th1 = threading.Thread(target=demo.run, args=(self,itemsTextList))
         th1.start()
+        ad['threads'].append(th1)
 
     def prog_str(self, name, vid, curr_frame, vid_frame, frame_count,videos):
         result = ""
