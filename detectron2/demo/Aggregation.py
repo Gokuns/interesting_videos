@@ -31,7 +31,7 @@ for video_name in tqdm.tqdm(videos, total=len(videos)):
             vid = {'video' : key,
                    'features': agg.tolist()}
             out.append(vid)
-with open(aggregation_path + 'average' +'.json', 'w') as outfile:
+with open(aggregation_path + 'max_pool' +'.json', 'w') as outfile:
     dump(out, outfile)
 
 
