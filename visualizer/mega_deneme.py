@@ -27,6 +27,8 @@ from visualizer.add import Ui_Dialog
 from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
+import matplotlib.colors as c
+import numpy as np
 
 from sklearn.manifold import TSNE
 
@@ -44,6 +46,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_MainWindow(object):
+
+
     def pca_data(self, data):
         feature_vector_list = [video["features"] for video in data]
         features = StandardScaler().fit_transform(feature_vector_list)
@@ -69,6 +73,7 @@ class Ui_MainWindow(object):
         if mode:
             pass
             #labels = [fil[i]['poc_result'] for i in range(len(fil))]
+        self.names = names
         return features, names, labels
 
     def tsne(self, features, names, labels):
@@ -103,15 +108,14 @@ class Ui_MainWindow(object):
     def plot_tnse(self, x_vals, y_vals, z_vals, names, labels, mode):
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
-        color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
-                 'black']
+
 
             #labels = [color[i] if labels[j]==i else 'black' for j in labels]
 
         if mode:
             uniq = np.unique(labels)
             for i in range(len(uniq)):
-                labels = [color[i] if j == i else j for j in labels]
+                labels = [self.color[i] if j == i else j for j in labels]
         #     for i in range(len(labels)):
         #         if labels[i] == 0:
         #             labels[i] = 'black'
@@ -127,13 +131,19 @@ class Ui_MainWindow(object):
             # ax.annotate(names[i], (x_vals[i], y_vals[i]))
         cid = self.plotWidget.canvas.axes.figure.canvas.mpl_connect('pick_event',
                                                                     lambda event: self.onpick(event, names))
+        self.labels = labels
         self.plotWidget.canvas.draw()
 
     def cluster_data(self,features,names,num_clusters):
         from sklearn.cluster import KMeans
         kmeans = KMeans(n_clusters=num_clusters, random_state=0, max_iter=1000, init='random', n_init=100).fit(features)
         labels = kmeans.labels_
-        return labels.tolist()
+        labels = labels.tolist()
+        uniq = np.unique(labels)
+
+        for i in range(num_clusters):
+            self.cluster_lst[i] = list(np.where(np.array(labels)==i))
+        return labels
 
     def refresh_plot(self):
         # print(int(self.coloringMode.isChecked()))
@@ -149,7 +159,7 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1209, 857)
+        MainWindow.resize(1400, 900)
         MainWindow.setStyleSheet("QToolTip\n"
 "{\n"
 "     border: 1px solid black;\n"
@@ -673,6 +683,31 @@ class Ui_MainWindow(object):
         dataset = Dataset.Dataset(name='', json_path=config.argument_defaults['video_data_path']
                                   .format(config.argument_defaults['poc_mode']))
         self.mediaPlayerOriginal = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c1v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c1v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c1v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c2v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c2v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c2v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c3v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c3v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c3v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c4v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c4v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c4v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c5v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c5v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c5v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c6v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c6v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c6v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c7v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c7v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c7v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c8v1MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c8v2MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+        self.c8v3MediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+
         self.mediaPlayerPanoptic = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.pause_icon = MainWindow.style().standardIcon(QStyle.SP_MediaPause)
         self.play_icon = MainWindow.style().standardIcon(QStyle.SP_MediaPlay)
@@ -725,11 +760,11 @@ class Ui_MainWindow(object):
         self.plotAreaLayout = QtWidgets.QVBoxLayout()
         self.plotAreaLayout.setObjectName("plotAreaLayout")
         self.plotWidget = MplWidget(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.plotWidget.sizePolicy().hasHeightForWidth())
-        self.plotWidget.setSizePolicy(sizePolicy)
+        sizePolicyPlot = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicyPlot.setHorizontalStretch(0)
+        sizePolicyPlot.setVerticalStretch(0)
+        sizePolicyPlot.setHeightForWidth(self.plotWidget.sizePolicy().hasHeightForWidth())
+        self.plotWidget.setSizePolicy(sizePolicyPlot)
         self.plotWidget.setMinimumSize(QtCore.QSize(300, 300))
         self.plotWidget.setMaximumSize(QtCore.QSize(600, 600))
         self.plotWidget.setObjectName("plotWidget")
@@ -769,7 +804,7 @@ class Ui_MainWindow(object):
         self.perplexityLabel.setObjectName("perplexityLabel")
         self.tsneParamForm.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.perplexityLabel)
         self.perplexitySpinBox = QtWidgets.QSpinBox(self.centralwidget)
-        self.perplexitySpinBox.setSizePolicy(sizePolicy)
+        self.perplexitySpinBox.setSizePolicy(sizePolicyPlot)
         self.perplexitySpinBox.setMinimum(2)
         self.perplexitySpinBox.setMaximum(50)
         self.perplexitySpinBox.setProperty("value", 30)
@@ -840,7 +875,7 @@ class Ui_MainWindow(object):
         self.numberOfClustersLabel.setObjectName("numberOfClustersLabel")
         self.clusteringParamForm.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.numberOfClustersLabel)
         self.numberOfClustersSpinBox = QtWidgets.QSpinBox(self.centralwidget)
-        self.numberOfClustersSpinBox.setSizePolicy(sizePolicy)
+        self.numberOfClustersSpinBox.setSizePolicy(sizePolicyPlot)
         self.numberOfClustersSpinBox.setMinimum(2)
         self.numberOfClustersSpinBox.setMaximum(8)
         self.numberOfClustersSpinBox.setProperty("value", 3)
@@ -877,168 +912,280 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.randomSampleButton = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
+        self.randomSampleButton.setObjectName("randomSampleButton")
+        self.verticalLayout_7.addWidget(self.randomSampleButton)
         self.label_4 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.label_4.setObjectName("label_4")
         self.verticalLayout_7.addWidget(self.label_4)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.widget_3 = QVideoWidget(self.scrollAreaWidgetContents)
+        cluster1video1 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_3.sizePolicy().hasHeightForWidth())
-        self.widget_3.setSizePolicy(sizePolicy)
-        self.widget_3.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_3.setObjectName("widget_3")
-        self.horizontalLayout_6.addWidget(self.widget_3)
-        self.widget_4 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(cluster1video1.sizePolicy().hasHeightForWidth())
+        cluster1video1.setSizePolicy(sizePolicy)
+        cluster1video1.setMinimumSize(QtCore.QSize(290, 200))
+        cluster1video1.setObjectName("widget_3")
+        cluster1video1.raise_()
+        self.horizontalLayout_6.addWidget(cluster1video1)
+        cluster1video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_4.sizePolicy().hasHeightForWidth())
-        self.widget_4.setSizePolicy(sizePolicy)
-        self.widget_4.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_4.setObjectName("widget_4")
-        self.horizontalLayout_6.addWidget(self.widget_4)
-        self.widget_5 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(cluster1video2.sizePolicy().hasHeightForWidth())
+        cluster1video2.setSizePolicy(sizePolicy)
+        cluster1video2.setMinimumSize(QtCore.QSize(290, 200))
+        cluster1video2.setObjectName("widget_4")
+        self.horizontalLayout_6.addWidget(cluster1video2)
+        cluster1video3 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_5.sizePolicy().hasHeightForWidth())
-        self.widget_5.setSizePolicy(sizePolicy)
-        self.widget_5.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_5.setObjectName("widget_5")
-        self.horizontalLayout_6.addWidget(self.widget_5)
+        sizePolicy.setHeightForWidth(cluster1video3.sizePolicy().hasHeightForWidth())
+        cluster1video3.setSizePolicy(sizePolicy)
+        cluster1video3.setMinimumSize(QtCore.QSize(290, 200))
+        cluster1video3.setObjectName("widget_5")
+        self.horizontalLayout_6.addWidget(cluster1video3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_6)
         self.label_6 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.label_6.setObjectName("label_6")
         self.verticalLayout_7.addWidget(self.label_6)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.widget_6 = QVideoWidget(self.scrollAreaWidgetContents)
+        self.cluster2video1 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_6.sizePolicy().hasHeightForWidth())
-        self.widget_6.setSizePolicy(sizePolicy)
-        self.widget_6.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_6.setObjectName("widget_6")
-        self.horizontalLayout_7.addWidget(self.widget_6)
-        self.widget_7 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster2video1.sizePolicy().hasHeightForWidth())
+        self.cluster2video1.setSizePolicy(sizePolicy)
+        self.cluster2video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster2video1.setObjectName("widget_6")
+        self.horizontalLayout_7.addWidget(self.cluster2video1)
+        self.cluster2video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_7.sizePolicy().hasHeightForWidth())
-        self.widget_7.setSizePolicy(sizePolicy)
-        self.widget_7.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_7.setObjectName("widget_7")
-        self.horizontalLayout_7.addWidget(self.widget_7)
-        self.widget_8 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster2video2.sizePolicy().hasHeightForWidth())
+        self.cluster2video2.setSizePolicy(sizePolicy)
+        self.cluster2video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster2video2.setObjectName("widget_7")
+        self.horizontalLayout_7.addWidget(self.cluster2video2)
+        self.cluster2video3 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_8.sizePolicy().hasHeightForWidth())
-        self.widget_8.setSizePolicy(sizePolicy)
-        self.widget_8.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_8.setObjectName("widget_8")
-        self.horizontalLayout_7.addWidget(self.widget_8)
+        sizePolicy.setHeightForWidth(self.cluster2video3.sizePolicy().hasHeightForWidth())
+        self.cluster2video3.setSizePolicy(sizePolicy)
+        self.cluster2video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster2video3.setObjectName("widget_8")
+        self.horizontalLayout_7.addWidget(self.cluster2video3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_7)
+
         self.label_5 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.label_5.setObjectName("label_5")
         self.verticalLayout_7.addWidget(self.label_5)
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
-        self.widget_15 = QVideoWidget(self.scrollAreaWidgetContents)
+        self.cluster3video1 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_15.sizePolicy().hasHeightForWidth())
-        self.widget_15.setSizePolicy(sizePolicy)
-        self.widget_15.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_15.setObjectName("widget_15")
-        self.horizontalLayout_10.addWidget(self.widget_15)
-        self.widget_16 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster3video1.sizePolicy().hasHeightForWidth())
+        self.cluster3video1.setSizePolicy(sizePolicy)
+        self.cluster3video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster3video1.setObjectName("widget_15")
+        self.horizontalLayout_10.addWidget(self.cluster3video1)
+        self.cluster3video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_16.sizePolicy().hasHeightForWidth())
-        self.widget_16.setSizePolicy(sizePolicy)
-        self.widget_16.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_16.setObjectName("widget_16")
-        self.horizontalLayout_10.addWidget(self.widget_16)
-        self.widget_17 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster3video2.sizePolicy().hasHeightForWidth())
+        self.cluster3video2.setSizePolicy(sizePolicy)
+        self.cluster3video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster3video2.setObjectName("widget_16")
+        self.horizontalLayout_10.addWidget(self.cluster3video2)
+        self.cluster3video3 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_17.sizePolicy().hasHeightForWidth())
-        self.widget_17.setSizePolicy(sizePolicy)
-        self.widget_17.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_17.setObjectName("widget_17")
-        self.horizontalLayout_10.addWidget(self.widget_17)
+        sizePolicy.setHeightForWidth(self.cluster3video3.sizePolicy().hasHeightForWidth())
+        self.cluster3video3.setSizePolicy(sizePolicy)
+        self.cluster3video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster3video3.setObjectName("widget_17")
+        self.horizontalLayout_10.addWidget(self.cluster3video3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_10)
+
         self.label_7 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.label_7.setObjectName("label_7")
         self.verticalLayout_7.addWidget(self.label_7)
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
-        self.widget_9 = QVideoWidget(self.scrollAreaWidgetContents)
+        self.cluster4video1 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_9.sizePolicy().hasHeightForWidth())
-        self.widget_9.setSizePolicy(sizePolicy)
-        self.widget_9.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_9.setObjectName("widget_9")
-        self.horizontalLayout_8.addWidget(self.widget_9)
-        self.widget_10 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster4video1.sizePolicy().hasHeightForWidth())
+        self.cluster4video1.setSizePolicy(sizePolicy)
+        self.cluster4video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster4video1.setObjectName("widget_9")
+        self.horizontalLayout_8.addWidget(self.cluster4video1)
+        self.cluster4video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_10.sizePolicy().hasHeightForWidth())
-        self.widget_10.setSizePolicy(sizePolicy)
-        self.widget_10.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_10.setObjectName("widget_10")
-        self.horizontalLayout_8.addWidget(self.widget_10)
-        self.widget_11 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster4video2.sizePolicy().hasHeightForWidth())
+        self.cluster4video2.setSizePolicy(sizePolicy)
+        self.cluster4video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster4video2.setObjectName("widget_10")
+        self.horizontalLayout_8.addWidget(self.cluster4video2)
+        self.cluster4video3 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_11.sizePolicy().hasHeightForWidth())
-        self.widget_11.setSizePolicy(sizePolicy)
-        self.widget_11.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_11.setObjectName("widget_11")
-        self.horizontalLayout_8.addWidget(self.widget_11)
+        sizePolicy.setHeightForWidth(self.cluster4video3.sizePolicy().hasHeightForWidth())
+        self.cluster4video3.setSizePolicy(sizePolicy)
+        self.cluster4video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster4video3.setObjectName("widget_11")
+        self.horizontalLayout_8.addWidget(self.cluster4video3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_8)
+        self.label_8 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_8.setObjectName("label_8")
+        self.verticalLayout_7.addWidget(self.label_8)
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_9.setObjectName("horizontalLayout_9")
-        self.widget_12 = QVideoWidget(self.scrollAreaWidgetContents)
+        self.cluster5video1 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_12.sizePolicy().hasHeightForWidth())
-        self.widget_12.setSizePolicy(sizePolicy)
-        self.widget_12.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_12.setObjectName("widget_12")
-        self.horizontalLayout_9.addWidget(self.widget_12)
-        self.widget_13 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster5video1.sizePolicy().hasHeightForWidth())
+        self.cluster5video1.setSizePolicy(sizePolicy)
+        self.cluster5video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster5video1.setObjectName("widget_12")
+        self.horizontalLayout_9.addWidget(self.cluster5video1)
+        self.cluster5video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_13.sizePolicy().hasHeightForWidth())
-        self.widget_13.setSizePolicy(sizePolicy)
-        self.widget_13.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_13.setObjectName("widget_13")
-        self.horizontalLayout_9.addWidget(self.widget_13)
-        self.widget_14 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy.setHeightForWidth(self.cluster5video2.sizePolicy().hasHeightForWidth())
+        self.cluster5video2.setSizePolicy(sizePolicy)
+        self.cluster5video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster5video2.setObjectName("widget_13")
+        self.horizontalLayout_9.addWidget(self.cluster5video2)
+        self.cluster5video3 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.widget_14.sizePolicy().hasHeightForWidth())
-        self.widget_14.setSizePolicy(sizePolicy)
-        self.widget_14.setMinimumSize(QtCore.QSize(200, 200))
-        self.widget_14.setObjectName("widget_14")
-        self.horizontalLayout_9.addWidget(self.widget_14)
+        sizePolicy.setHeightForWidth(self.cluster5video3.sizePolicy().hasHeightForWidth())
+        self.cluster5video3.setSizePolicy(sizePolicy)
+        self.cluster5video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster5video3.setObjectName("widget_14")
+        self.horizontalLayout_9.addWidget(self.cluster5video3)
         self.verticalLayout_7.addLayout(self.horizontalLayout_9)
+
+        self.label_9 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_9.setObjectName("label_9")
+        self.verticalLayout_7.addWidget(self.label_9)
+        self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        self.cluster6video1 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster6video1.sizePolicy().hasHeightForWidth())
+        self.cluster6video1.setSizePolicy(sizePolicy)
+        self.cluster6video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster6video1.setObjectName("cluster6video1")
+        self.horizontalLayout_11.addWidget(self.cluster6video1)
+        self.cluster6video2 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster6video2.sizePolicy().hasHeightForWidth())
+        self.cluster6video2.setSizePolicy(sizePolicy)
+        self.cluster6video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster6video2.setObjectName("cluster6video2")
+        self.horizontalLayout_11.addWidget(self.cluster6video2)
+        self.cluster6video3 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster6video3.sizePolicy().hasHeightForWidth())
+        self.cluster6video3.setSizePolicy(sizePolicy)
+        self.cluster6video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster6video3.setObjectName("widget_17")
+        self.horizontalLayout_11.addWidget(self.cluster6video3)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_11)
+
+        self.label_10 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_10.setObjectName("label_10")
+        self.verticalLayout_7.addWidget(self.label_10)
+        self.horizontalLayout_12 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
+        self.cluster7video1 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster7video1.sizePolicy().hasHeightForWidth())
+        self.cluster7video1.setSizePolicy(sizePolicy)
+        self.cluster7video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster7video1.setObjectName("cluster7video1")
+        self.horizontalLayout_12.addWidget(self.cluster7video1)
+        self.cluster7video2 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster7video2.sizePolicy().hasHeightForWidth())
+        self.cluster7video2.setSizePolicy(sizePolicy)
+        self.cluster7video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster7video2.setObjectName("cluster7video2")
+        self.horizontalLayout_12.addWidget(self.cluster7video2)
+        self.cluster7video3 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster7video3.sizePolicy().hasHeightForWidth())
+        self.cluster7video3.setSizePolicy(sizePolicy)
+        self.cluster7video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster7video3.setObjectName("widget_17")
+        self.horizontalLayout_12.addWidget(self.cluster7video3)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_12)
+
+        self.label_11 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_11.setObjectName("label_11")
+        self.verticalLayout_7.addWidget(self.label_11)
+        self.horizontalLayout_13 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_13.setObjectName("horizontalLayout_13")
+        self.cluster8video1 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster8video1.sizePolicy().hasHeightForWidth())
+        self.cluster8video1.setSizePolicy(sizePolicy)
+        self.cluster8video1.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster8video1.setObjectName("cluster8video1")
+        self.horizontalLayout_13.addWidget(self.cluster8video1)
+        self.cluster8video2 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster8video2.sizePolicy().hasHeightForWidth())
+        self.cluster8video2.setSizePolicy(sizePolicy)
+        self.cluster8video2.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster8video2.setObjectName("cluster8video2")
+        self.horizontalLayout_13.addWidget(self.cluster8video2)
+        self.cluster8video3 = QVideoWidget(self.scrollAreaWidgetContents)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cluster8video3.sizePolicy().hasHeightForWidth())
+        self.cluster8video3.setSizePolicy(sizePolicy)
+        self.cluster8video3.setMinimumSize(QtCore.QSize(280, 200))
+        self.cluster8video3.setObjectName("widget_17")
+        self.horizontalLayout_13.addWidget(self.cluster8video3)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_13)
+
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_5.addWidget(self.scrollArea)
         self.stackedWidget.addWidget(self.clusterViewPage)
@@ -1047,11 +1194,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.singleViewPage)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         originalVideoWidget = QVideoWidget(self.singleViewPage)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(originalVideoWidget.sizePolicy().hasHeightForWidth())
-        originalVideoWidget.setSizePolicy(sizePolicy)
+        sizePolicyOriginal = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        sizePolicyOriginal.setHorizontalStretch(0)
+        sizePolicyOriginal.setVerticalStretch(0)
+        sizePolicyOriginal.setHeightForWidth(originalVideoWidget.sizePolicy().hasHeightForWidth())
+        originalVideoWidget.setSizePolicy(sizePolicyOriginal)
         originalVideoWidget.setMinimumSize(QtCore.QSize(300, 300))
         originalVideoWidget.setObjectName("originalVideoWidget")
         self.verticalLayout_6.addWidget(originalVideoWidget)
@@ -1061,11 +1208,11 @@ class Ui_MainWindow(object):
         self.line_6.setObjectName("line_6")
         self.verticalLayout_6.addWidget(self.line_6)
         panopticVideoWidget = QVideoWidget(self.singleViewPage)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(panopticVideoWidget.sizePolicy().hasHeightForWidth())
-        panopticVideoWidget.setSizePolicy(sizePolicy)
+        sizePolicyPanoptic = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        sizePolicyPanoptic.setHorizontalStretch(0)
+        sizePolicyPanoptic.setVerticalStretch(0)
+        sizePolicyPanoptic.setHeightForWidth(panopticVideoWidget.sizePolicy().hasHeightForWidth())
+        panopticVideoWidget.setSizePolicy(sizePolicyPanoptic)
         panopticVideoWidget.setMinimumSize(QtCore.QSize(300, 300))
         panopticVideoWidget.setObjectName("panopticVideoWidget")
         self.verticalLayout_6.addWidget(panopticVideoWidget)
@@ -1079,7 +1226,6 @@ class Ui_MainWindow(object):
         self.playButton.setEnabled(False)
         self.playButton.setIcon(MainWindow.style().standardIcon(QStyle.SP_MediaPlay))
         self.playButton.clicked.connect(self.play)
-
 
         self.horizontalLayout_4.addWidget(self.playButton)
         self.progressBar = QSlider(self.singleViewPage)
@@ -1103,9 +1249,107 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.mediaPlayerOriginal.setVideoOutput(originalVideoWidget)
+        self.c1v1MediaPlayer.setVideoOutput(cluster1video1)
+        cluster1video1.raise_()
+
+        self.c1v2MediaPlayer.setVideoOutput(cluster1video2)
+        self.c1v3MediaPlayer.setVideoOutput(cluster1video3)
+
+        self.c1row = []
+        self.c1row.append(self.c1v1MediaPlayer)
+        self.c1row.append(self.c1v2MediaPlayer)
+        self.c1row.append(self.c1v3MediaPlayer)
+
+        self.c2v1MediaPlayer.setVideoOutput(self.cluster2video1)
+        self.c2v2MediaPlayer.setVideoOutput(self.cluster2video2)
+        self.c2v3MediaPlayer.setVideoOutput(self.cluster2video3)
+
+        self.c2row = []
+        self.c2row.append(self.c2v1MediaPlayer)
+        self.c2row.append(self.c2v2MediaPlayer)
+        self.c2row.append(self.c2v3MediaPlayer)
+
+
+        self.c3v1MediaPlayer.setVideoOutput(self.cluster3video1)
+        self.c3v2MediaPlayer.setVideoOutput(self.cluster3video2)
+        self.c3v3MediaPlayer.setVideoOutput(self.cluster3video3)
+
+        self.c3row = []
+        self.c3row.append(self.c3v1MediaPlayer)
+        self.c3row.append(self.c3v2MediaPlayer)
+        self.c3row.append(self.c3v3MediaPlayer)
+
+
+        self.c4v1MediaPlayer.setVideoOutput(self.cluster4video1)
+        self.c4v2MediaPlayer.setVideoOutput(self.cluster4video2)
+        self.c4v3MediaPlayer.setVideoOutput(self.cluster4video3)
+
+        self.c4row = []
+        self.c4row.append(self.c4v1MediaPlayer)
+        self.c4row.append(self.c4v2MediaPlayer)
+        self.c4row.append(self.c4v3MediaPlayer)
+
+
+        self.c5v1MediaPlayer.setVideoOutput(self.cluster5video1)
+        self.c5v2MediaPlayer.setVideoOutput(self.cluster5video2)
+        self.c5v3MediaPlayer.setVideoOutput(self.cluster5video3)
+
+        self.c5row = []
+        self.c5row.append(self.c5v1MediaPlayer)
+        self.c5row.append(self.c5v2MediaPlayer)
+        self.c5row.append(self.c5v3MediaPlayer)
+
+
+        self.c6v1MediaPlayer.setVideoOutput(self.cluster6video1)
+        self.c6v2MediaPlayer.setVideoOutput(self.cluster6video2)
+        self.c6v3MediaPlayer.setVideoOutput(self.cluster6video3)
+
+        self.c6row = []
+        self.c6row.append(self.c6v1MediaPlayer)
+        self.c6row.append(self.c6v2MediaPlayer)
+        self.c6row.append(self.c6v3MediaPlayer)
+
+
+        self.c7v1MediaPlayer.setVideoOutput(self.cluster7video1)
+        self.c7v2MediaPlayer.setVideoOutput(self.cluster7video2)
+        self.c7v3MediaPlayer.setVideoOutput(self.cluster7video3)
+
+        self.c7row = []
+        self.c7row.append(self.c7v1MediaPlayer)
+        self.c7row.append(self.c7v2MediaPlayer)
+        self.c7row.append(self.c7v3MediaPlayer)
+
+
+        self.c8v1MediaPlayer.setVideoOutput(self.cluster8video1)
+        self.c8v2MediaPlayer.setVideoOutput(self.cluster8video2)
+        self.c8v3MediaPlayer.setVideoOutput(self.cluster8video3)
+
+        self.c8row = []
+        self.c8row.append(self.c8v1MediaPlayer)
+        self.c8row.append(self.c8v2MediaPlayer)
+        self.c8row.append(self.c8v3MediaPlayer)
+
+
+
+
+        self.cvplayers = []
+
+        self.cvplayers.append(self.c1row)
+        self.cvplayers.append(self.c2row)
+        self.cvplayers.append(self.c3row)
+        self.cvplayers.append(self.c4row)
+        self.cvplayers.append(self.c5row)
+        self.cvplayers.append(self.c6row)
+        self.cvplayers.append(self.c7row)
+        self.cvplayers.append(self.c8row)
+
+
+
+
         self.mediaPlayerPanoptic.setVideoOutput(panopticVideoWidget)
         self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
         self.mediaPlayerOriginal.durationChanged.connect(self.durationChanged)
+        self.randomSampleButton.clicked.connect(self.showClusterVideos)
 
         self.adderWin = QtWidgets.QMainWindow()
         self.adder = Ui_Dialog()
@@ -1115,6 +1359,36 @@ class Ui_MainWindow(object):
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self.ind = -1
+        self.old_ind = -1
+        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
+                 'black']
+        self.names = []
+
+        self.cluster1= []
+        self.cluster2= []
+        self.cluster3= []
+        self.cluster4= []
+        self.cluster5= []
+        self.cluster6= []
+        self.cluster7= []
+        self.cluster8= []
+
+
+        self.cluster_lst = []
+        self.cluster_lst.append(self.cluster1)
+        self.cluster_lst.append(self.cluster2)
+        self.cluster_lst.append(self.cluster3)
+        self.cluster_lst.append(self.cluster4)
+        self.cluster_lst.append(self.cluster5)
+        self.cluster_lst.append(self.cluster6)
+        self.cluster_lst.append(self.cluster7)
+        self.cluster_lst.append(self.cluster8)
+
+
+
+
 
     def play(self):
         if self.mediaPlayerOriginal.state() == QMediaPlayer.PlayingState:
@@ -1144,19 +1418,84 @@ class Ui_MainWindow(object):
         self.adder.setupUi(self.adderWin)
         self.adderWin.show()
 
+    def adder_t(self):
+        th3 = threading.Thread(target=self.openAdder)
+        ad['threads'].append(th3)
+        th3.start()
+
+
+
 
 
 
     def openVideo(self, text):
-        fileName= config.argument_defaults['export_path']+'/'+text
-        panopticFilename = config.argument_defaults['output_path']+'/'+text
+        if self.plotWidget.canvas.axes.collections:
+            if self.ind>=0:
+                col = c.to_rgba(self.labels[self.ind])
+                self.plotWidget.canvas.axes.collections[0]._facecolor3d[
+                self.ind, :] = col
+                self.plotWidget.canvas.axes.collections[0]._edgecolor3d[
+                self.ind, :] = col
+            print("figure is on")
+            self.ind = self.names.index(text)
+            self.plotWidget.canvas.axes.collections[0]._facecolor3d[self.ind,:] = (1, 1, 1, 1)
+            self.plotWidget.canvas.axes.collections[0]._edgecolor3d[self.ind,:] = (1, 1, 1, 1)
+            self.plotWidget.canvas.draw()
 
-        if fileName != config.argument_defaults['export_path']+'/'+'Select video...':
+        else:
+            print("no figure there son")
+
+        fileName = config.argument_defaults['export_path'] + '/' + text
+        panopticFilename = config.argument_defaults[
+                               'output_path'] + '/' + text
+
+        if fileName != config.argument_defaults[
+            'export_path'] + '/' + 'Select video...':
             self.mediaPlayerOriginal.setMedia(
-                    QMediaContent(QUrl.fromLocalFile(fileName)))
+                QMediaContent(QUrl.fromLocalFile(fileName)))
             self.mediaPlayerPanoptic.setMedia(
                 QMediaContent(QUrl.fromLocalFile(panopticFilename)))
             self.playButton.setEnabled(True)
+
+
+
+    def showClusterVideos(self):
+        fileName= 'C:/Users/Asli/Desktop/videolar'+'/'+'scene-0001.mp4'
+        num_cluster = self.numberOfClustersSpinBox.value()
+        import random
+        seqs = []
+        for i in range(num_cluster):
+            seq = random.sample(list(self.cluster_lst[i][0]),3)
+            #TODO: output and export must bechangable near the generate sample buttton
+            self.cvplayers[i][0].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[0]])))
+            self.cvplayers[i][1].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[1]])))
+            self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[2]])))
+
+
+        self.c1v1MediaPlayer.play()
+        self.c1v2MediaPlayer.play()
+        self.c1v3MediaPlayer.play()
+        self.c2v1MediaPlayer.play()
+        self.c2v2MediaPlayer.play()
+        self.c2v3MediaPlayer.play()
+        self.c3v1MediaPlayer.play()
+        self.c3v2MediaPlayer.play()
+        self.c3v3MediaPlayer.play()
+        self.c4v1MediaPlayer.play()
+        self.c4v2MediaPlayer.play()
+        self.c4v3MediaPlayer.play()
+        self.c5v1MediaPlayer.play()
+        self.c5v2MediaPlayer.play()
+        self.c5v3MediaPlayer.play()
+        self.c6v1MediaPlayer.play()
+        self.c6v2MediaPlayer.play()
+        self.c6v3MediaPlayer.play()
+        self.c7v1MediaPlayer.play()
+        self.c7v2MediaPlayer.play()
+        self.c7v3MediaPlayer.play()
+        self.c8v1MediaPlayer.play()
+        self.c8v2MediaPlayer.play()
+        self.c8v3MediaPlayer.play()
 
     def setUpClusterView(self):
         self.sceneComboBox.setEnabled(False)
@@ -1191,26 +1530,34 @@ class Ui_MainWindow(object):
         self.numberOfClustersLabel.setText(_translate("MainWindow", "Number of Clusters"))
         self.coloringModeLabel.setText(_translate("MainWindow", "Coloring mode"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh"))
-        self.label_4.setText(_translate("MainWindow", "TextLabel"))
-        self.label_6.setText(_translate("MainWindow", "TextLabel"))
-        self.label_5.setText(_translate("MainWindow", "TextLabel"))
-        self.label_7.setText(_translate("MainWindow", "TextLabel"))
+        self.label_4.setText(_translate("MainWindow", "Cluster 1"))
+        self.label_6.setText(_translate("MainWindow", "Cluster 2"))
+        self.label_5.setText(_translate("MainWindow", "Cluster 3"))
+        self.label_7.setText(_translate("MainWindow", "Cluster 4"))
+        self.label_8.setText(_translate("MainWindow", "Cluster 5"))
+        self.label_9.setText(_translate("MainWindow", "Cluster 6"))
+        self.label_10.setText(_translate("MainWindow", "Cluster 7"))
+        self.label_11.setText(_translate("MainWindow", "Cluster 8"))
+        self.randomSampleButton.setText(_translate("MainWindow", "Show Random Samples"))
+
         self.setUpSingleView()
 from visualizer.mplwidget import MplWidget
 
 def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
+
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
+    QApplication.processEvents()
     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    th2 = threading.Thread(target=main())
+    th2 = threading.Thread(target=main)
     th2.start()
     ad['threads'].append(th2)
-    for a in ad['threads']:
-        a.join()
+    # for a in ad['threads']:
+    #     a.join()
