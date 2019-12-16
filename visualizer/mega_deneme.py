@@ -1482,6 +1482,10 @@ class Ui_MainWindow(object):
         for i in range(num_cluster):
             self.cluster_label_list[8-i].setVisible(False)
 
+        for i in range(num_cluster):
+            self.cluster_label_list[i].setVisible(True)
+
+
         self.c1v1MediaPlayer.play()
         self.c1v2MediaPlayer.play()
         self.c1v3MediaPlayer.play()
