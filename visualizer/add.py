@@ -786,7 +786,7 @@ class Ui_Dialog(object):
         #print(self.total_frame)
         if self.total_frame<=0:
             self.widget.close()
-        #self.update_prog("asd", 2, 35, 232, 385,5)
+        self.update_prog("", 0, 0, 0, 0,0)
         self.stackedWidget.setCurrentIndex(1)
         itemsTextList = [str(self.list_view.item(i).text()) for i in
                          range(self.list_view.count())]
