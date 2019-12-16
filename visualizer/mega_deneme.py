@@ -5,8 +5,7 @@
 # Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
-
-
+from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtCore import QDir, Qt, QUrl, QRect
@@ -1410,6 +1409,7 @@ class Ui_MainWindow(object):
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
+        self.savePlotButton.clicked.connect(self.savePlot)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.ind = -1
@@ -1574,6 +1574,34 @@ class Ui_MainWindow(object):
         self.c8v2MediaPlayer.play()
         self.c8v3MediaPlayer.play()
 
+    def savePlot(self):
+        dateTimeObj = datetime.now()
+        plot_name = config.argument_defaults['plot_output']+'/'+dateTimeObj.strftime("plot_%d_%b_%Y_%H_%M_%S.png")
+        parameters_name = config.argument_defaults['plot_output']+'/'+ dateTimeObj.strftime("/parameters_%d_%b_%Y_%H_%M_%S.txt")
+        metadata = {}
+        metadata['Number Of Clusters'] = self.numberOfClustersSpinBox.value()
+        metadata['Number of Iterations (t-SNE)'] = self.iterationsSpinBox.value()
+        metadata['Perplexity (t-SNE)'] = self.perplexitySpinBox.value()
+        metadata['Early Exaggeration (t-SNE)'] = self.earlyExaggerationSpinBox.value()
+        metadata['Learning Rate (t-SNE)'] = self.learningRateSpinBox.value()
+        metadata['Number Of PCA Components'] = self.numberOfComponentsSpinBox.value()
+
+        fo = open(parameters_name, "w")
+
+        for k, v in metadata.items():
+            fo.write(str(k) + ': ' + str(v) + '\n')
+
+        fo.close()
+        self.plotWidget.canvas.figure.patch.set_visible(True)
+        self.plotWidget.canvas.axes.patch.set_visible(True)
+        self.plotWidget.canvas.figure.savefig(plot_name, transparent=False)
+        self.plotWidget.canvas.figure.patch.set_visible(False)
+        self.plotWidget.canvas.axes.patch.set_visible(False)
+        self.plotWidget.canvas.draw()
+
+
+
+
     def setUpClusterView(self):
         self.sceneComboBox.setEnabled(False)
         self.stackedWidget.setCurrentIndex(0)
@@ -1606,7 +1634,7 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Clustering Parameters"))
         self.numberOfClustersLabel.setText(_translate("MainWindow", "Number of Clusters"))
         self.coloringModeLabel.setText(_translate("MainWindow", "Coloring mode"))
-        self.refreshButton.setText(_translate("MainWindow", "Refresh"))
+        self.refreshButton.setText(_translate("MainWindow", "Generate Plot"))
         self.cluster1_label.setText(_translate("MainWindow", "Cluster 1"))
         self.cluster2_label.setText(_translate("MainWindow", "Cluster 2"))
         self.cluster3_label.setText(_translate("MainWindow", "Cluster 3"))

@@ -12,6 +12,6 @@ argument_defaults = dict(
     extractor="F:/data/features",
     aggregation = "F:\\agg\\",
     output_path='F:/data/segmented_videos',
-    plot_output = "F:\\{}",
+    plot_output = "C:/Users/Asli/Desktop",
     threads = [],
 )
