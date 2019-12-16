@@ -912,9 +912,19 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
+
         self.randomSampleButton = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
         self.randomSampleButton.setObjectName("randomSampleButton")
-        self.verticalLayout_7.addWidget(self.randomSampleButton)
+
+        self.panopticOptionRadio = QtWidgets.QRadioButton(self.scrollAreaWidgetContents)
+        self.panopticOptionRadio.setObjectName("panopticOptionRadio")
+
+        self.controlsHorizontal = QtWidgets.QHBoxLayout()
+        self.controlsHorizontal.setObjectName("controlsHorizontal")
+        self.controlsHorizontal.addWidget(self.panopticOptionRadio)
+
+        self.controlsHorizontal.addWidget(self.randomSampleButton)
+        self.verticalLayout_7.addLayout(self.controlsHorizontal)
         self.cluster1_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.cluster1_label.setObjectName("cluster1_label")
         self.verticalLayout_7.addWidget(self.cluster1_label)
@@ -928,7 +938,6 @@ class Ui_MainWindow(object):
         self.cluster1video1.setSizePolicy(sizePolicy)
         self.cluster1video1.setMinimumSize(QtCore.QSize(290, 200))
         self.cluster1video1.setObjectName("widget_3")
-        self.cluster1video1.raise_()
         self.horizontalLayout_6.addWidget(self.cluster1video1)
         self.cluster1video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
@@ -1513,15 +1522,18 @@ class Ui_MainWindow(object):
 
     def showClusterVideos(self):
         fileName= 'C:/Users/Asli/Desktop/videolar'+'/'+'scene-0001.mp4'
+        source = config.argument_defaults['output_path'] if self.panopticOptionRadio.isChecked() else config.argument_defaults['export_path']
+
+
         num_cluster = self.numberOfClustersSpinBox.value()
         import random
         seqs = []
         for i in range(num_cluster):
             seq = random.sample(list(self.cluster_lst[i][0]),3)
             #TODO: output and export must bechangable near the generate sample buttton
-            self.cvplayers[i][0].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[0]])))
-            self.cvplayers[i][1].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[1]])))
-            self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[2]])))
+            self.cvplayers[i][0].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[0]])))
+            self.cvplayers[i][1].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[1]])))
+            self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[2]])))
 
 
         for i in range(8-num_cluster):
@@ -1604,6 +1616,7 @@ class Ui_MainWindow(object):
         self.cluster7_label.setText(_translate("MainWindow", "Cluster 7"))
         self.cluster8_label.setText(_translate("MainWindow", "Cluster 8"))
         self.randomSampleButton.setText(_translate("MainWindow", "Show Random Samples"))
+        self.panopticOptionRadio.setText(_translate("MainWindow", "Show Segmented Versions"))
 
         self.setUpSingleView()
 from visualizer.mplwidget import MplWidget
