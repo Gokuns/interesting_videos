@@ -1249,6 +1249,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.mediaPlayerOriginal.setVideoOutput(originalVideoWidget)
+
         self.c1v1MediaPlayer.setVideoOutput(self.cluster1video1)
         self.c1v2MediaPlayer.setVideoOutput(self.cluster1video2)
         self.c1v3MediaPlayer.setVideoOutput(self.cluster1video3)
@@ -1257,6 +1258,12 @@ class Ui_MainWindow(object):
         self.c1row.append(self.c1v1MediaPlayer)
         self.c1row.append(self.c1v2MediaPlayer)
         self.c1row.append(self.c1v3MediaPlayer)
+
+        self.cluster1videoWidgets = []
+        self.cluster1videoWidgets.append(self.cluster1video1)
+        self.cluster1videoWidgets.append(self.cluster1video2)
+        self.cluster1videoWidgets.append(self.cluster1video3)
+
 
         self.c2v1MediaPlayer.setVideoOutput(self.cluster2video1)
         self.c2v2MediaPlayer.setVideoOutput(self.cluster2video2)
@@ -1267,6 +1274,10 @@ class Ui_MainWindow(object):
         self.c2row.append(self.c2v2MediaPlayer)
         self.c2row.append(self.c2v3MediaPlayer)
 
+        self.cluster2videoWidgets = []
+        self.cluster2videoWidgets.append(self.cluster2video1)
+        self.cluster2videoWidgets.append(self.cluster2video2)
+        self.cluster2videoWidgets.append(self.cluster2video3)
 
         self.c3v1MediaPlayer.setVideoOutput(self.cluster3video1)
         self.c3v2MediaPlayer.setVideoOutput(self.cluster3video2)
@@ -1277,6 +1288,10 @@ class Ui_MainWindow(object):
         self.c3row.append(self.c3v2MediaPlayer)
         self.c3row.append(self.c3v3MediaPlayer)
 
+        self.cluster3videoWidgets = []
+        self.cluster3videoWidgets.append(self.cluster3video1)
+        self.cluster3videoWidgets.append(self.cluster3video2)
+        self.cluster3videoWidgets.append(self.cluster3video3)
 
         self.c4v1MediaPlayer.setVideoOutput(self.cluster4video1)
         self.c4v2MediaPlayer.setVideoOutput(self.cluster4video2)
@@ -1286,6 +1301,12 @@ class Ui_MainWindow(object):
         self.c4row.append(self.c4v1MediaPlayer)
         self.c4row.append(self.c4v2MediaPlayer)
         self.c4row.append(self.c4v3MediaPlayer)
+
+        self.cluster4videoWidgets = []
+        self.cluster4videoWidgets.append(self.cluster4video1)
+        self.cluster4videoWidgets.append(self.cluster4video2)
+        self.cluster4videoWidgets.append(self.cluster4video3)
+
 
 
         self.c5v1MediaPlayer.setVideoOutput(self.cluster5video1)
@@ -1297,6 +1318,10 @@ class Ui_MainWindow(object):
         self.c5row.append(self.c5v2MediaPlayer)
         self.c5row.append(self.c5v3MediaPlayer)
 
+        self.cluster5videoWidgets = []
+        self.cluster5videoWidgets.append(self.cluster5video1)
+        self.cluster5videoWidgets.append(self.cluster5video2)
+        self.cluster5videoWidgets.append(self.cluster5video3)
 
         self.c6v1MediaPlayer.setVideoOutput(self.cluster6video1)
         self.c6v2MediaPlayer.setVideoOutput(self.cluster6video2)
@@ -1307,6 +1332,10 @@ class Ui_MainWindow(object):
         self.c6row.append(self.c6v2MediaPlayer)
         self.c6row.append(self.c6v3MediaPlayer)
 
+        self.cluster6videoWidgets = []
+        self.cluster6videoWidgets.append(self.cluster6video1)
+        self.cluster6videoWidgets.append(self.cluster6video2)
+        self.cluster6videoWidgets.append(self.cluster6video3)
 
         self.c7v1MediaPlayer.setVideoOutput(self.cluster7video1)
         self.c7v2MediaPlayer.setVideoOutput(self.cluster7video2)
@@ -1316,6 +1345,11 @@ class Ui_MainWindow(object):
         self.c7row.append(self.c7v1MediaPlayer)
         self.c7row.append(self.c7v2MediaPlayer)
         self.c7row.append(self.c7v3MediaPlayer)
+
+        self.cluster7videoWidgets = []
+        self.cluster7videoWidgets.append(self.cluster7video1)
+        self.cluster7videoWidgets.append(self.cluster7video2)
+        self.cluster7videoWidgets.append(self.cluster7video3)
 
 
         self.c8v1MediaPlayer.setVideoOutput(self.cluster8video1)
@@ -1327,7 +1361,10 @@ class Ui_MainWindow(object):
         self.c8row.append(self.c8v2MediaPlayer)
         self.c8row.append(self.c8v3MediaPlayer)
 
-
+        self.cluster8videoWidgets = []
+        self.cluster8videoWidgets.append(self.cluster8video1)
+        self.cluster8videoWidgets.append(self.cluster8video2)
+        self.cluster8videoWidgets.append(self.cluster8video3)
 
 
         self.cvplayers = []
@@ -1341,8 +1378,16 @@ class Ui_MainWindow(object):
         self.cvplayers.append(self.c7row)
         self.cvplayers.append(self.c8row)
 
+        self.videoWidgets = []
 
-
+        self.videoWidgets.append(self.cluster1videoWidgets)
+        self.videoWidgets.append(self.cluster2videoWidgets)
+        self.videoWidgets.append(self.cluster3videoWidgets)
+        self.videoWidgets.append(self.cluster4videoWidgets)
+        self.videoWidgets.append(self.cluster5videoWidgets)
+        self.videoWidgets.append(self.cluster6videoWidgets)
+        self.videoWidgets.append(self.cluster7videoWidgets)
+        self.videoWidgets.append(self.cluster8videoWidgets)
 
         self.mediaPlayerPanoptic.setVideoOutput(panopticVideoWidget)
         self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
@@ -1360,7 +1405,7 @@ class Ui_MainWindow(object):
 
         self.ind = -1
         self.old_ind = -1
-        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
+        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'magenta', 'cyan',
                  'black']
         self.names = []
 
@@ -1479,12 +1524,18 @@ class Ui_MainWindow(object):
             self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[2]])))
 
 
-        for i in range(num_cluster):
-            self.cluster_label_list[8-i].setVisible(False)
+        for i in range(8-num_cluster):
+            self.cluster_label_list[7-i].setVisible(False)
+            self.videoWidgets[7-i][0].setVisible(False)
+            self.videoWidgets[7-i][1].setVisible(False)
+            self.videoWidgets[7-i][2].setVisible(False)
 
         for i in range(num_cluster):
             self.cluster_label_list[i].setVisible(True)
-
+            self.cluster_label_list[i].setStyleSheet('color: '+self.color[i])
+            self.videoWidgets[i][0].setVisible(True)
+            self.videoWidgets[i][1].setVisible(True)
+            self.videoWidgets[i][2].setVisible(True)
 
         self.c1v1MediaPlayer.play()
         self.c1v2MediaPlayer.play()
