@@ -23,6 +23,8 @@ from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib
 from visualizer.add import Ui_Dialog
+from visualizer.help import Ui_HelperDialog
+
 from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
@@ -1406,6 +1408,11 @@ class Ui_MainWindow(object):
         self.adder = Ui_Dialog()
         self.addvideoButton.clicked.connect(self.openAdder)
 
+        self.helperWin = QtWidgets.QDialog()
+        self.helper = Ui_HelperDialog()
+        self.helpButton.clicked.connect(self.openHelper)
+
+
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
@@ -1484,7 +1491,15 @@ class Ui_MainWindow(object):
         ad['threads'].append(th3)
         th3.start()
 
+    def openHelper(self):
 
+        self.helper.setupUi(self.helperWin)
+        self.helperWin.show()
+
+    def helper_t(self):
+        th4 = threading.Thread(target=self.openHelper())
+        ad['threads'].append(th4)
+        th4.start()
 
 
 
