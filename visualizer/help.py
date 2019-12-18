@@ -563,7 +563,7 @@ class Ui_HelperDialog(object):
         self.label_7.setObjectName("label_7")
         self.verticalLayout.addWidget(self.label_7)
         self.textBrowser_7 = QtWidgets.QTextBrowser(self.scrollAreaWidgetContents)
-        self.textBrowser_7.setMinimumSize(QtCore.QSize(0, 220))
+        self.textBrowser_7.setMinimumSize(QtCore.QSize(0, 230))
         self.textBrowser_7.setObjectName("textBrowser_7")
         self.verticalLayout.addWidget(self.textBrowser_7)
         self.label_2 = QtWidgets.QLabel(self.scrollAreaWidgetContents)

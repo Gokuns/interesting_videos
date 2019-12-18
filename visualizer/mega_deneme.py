@@ -1408,8 +1408,7 @@ class Ui_MainWindow(object):
         self.adder = Ui_Dialog()
         self.addvideoButton.clicked.connect(self.openAdder)
 
-        self.helperWin = QtWidgets.QDialog()
-        self.helper = Ui_HelperDialog()
+
         self.helpButton.clicked.connect(self.openHelper)
 
 
@@ -1492,8 +1491,10 @@ class Ui_MainWindow(object):
         th3.start()
 
     def openHelper(self):
-
+        self.helperWin = QtWidgets.QDialog()
+        self.helper = Ui_HelperDialog()
         self.helper.setupUi(self.helperWin)
+        self.helperWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.helperWin.show()
 
     def helper_t(self):
