@@ -5,7 +5,7 @@
 # Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
-
+from config import argument_defaults
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
