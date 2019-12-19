@@ -29,6 +29,7 @@ from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
 import matplotlib.colors as c
+from settings import Ui_SettingsDialog
 import numpy as np
 
 from sklearn.manifold import TSNE
@@ -1502,7 +1503,12 @@ class Ui_MainWindow(object):
         ad['threads'].append(th4)
         th4.start()
 
-
+    def openSettings(self):
+        self.settingsWin = QtWidgets.QDialog()
+        self.settings = Ui_SettingsDialog(config.argument_defaults)
+        self.helper.setupUi(self.helperWin)
+        self.helperWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.helperWin.show()
 
 
     def openVideo(self, text):

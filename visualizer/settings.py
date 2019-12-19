@@ -8,10 +8,21 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from config import argument_defaults
 
 
-class Ui_Dialog(object):
+class Ui_SettingsDialog(object):
+
+    def __init__(self, config):
+        self.configKeys = {"videos": "export_path",
+                           "segmented_videos": "output_path",
+                           "features": "extractor",
+                           "aggregated_features": "aggregation"}
+        self.lineEdits = {}
+        self.settings = config
+
     def setupUi(self, Dialog):
+        self.dialog = Dialog
         Dialog.setObjectName("Dialog")
         Dialog.resize(817, 219)
         Dialog.setStyleSheet("QToolTip\n"
@@ -557,7 +568,7 @@ class Ui_Dialog(object):
         self.horizontalLayout.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.videoDirectoryLineEdit = QtWidgets.QLineEdit(self.videoDirectoryWidget)
-        self.videoDirectoryLineEdit.setText("")
+        self.videoDirectoryLineEdit.setText(self.settings[self.configKeys["videos"]])
         self.videoDirectoryLineEdit.setObjectName("videoDirectoryLineEdit")
         self.horizontalLayout.addWidget(self.videoDirectoryLineEdit)
         self.videoDirectoryButton = QtWidgets.QPushButton(self.videoDirectoryWidget)
@@ -574,6 +585,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.segmentedVideoDirectoryLineEdit = QtWidgets.QLineEdit(self.segmentedVideoDirectoryWidget)
         self.segmentedVideoDirectoryLineEdit.setObjectName("segmentedVideoDirectoryLineEdit")
+        self.segmentedVideoDirectoryLineEdit.setText(self.settings[self.configKeys["segmented_videos"]])
         self.horizontalLayout_2.addWidget(self.segmentedVideoDirectoryLineEdit)
         self.segmentedVideoDirectoryButton = QtWidgets.QPushButton(self.segmentedVideoDirectoryWidget)
         self.segmentedVideoDirectoryButton.setObjectName("segmentedVideoDirectoryButton")
@@ -589,6 +601,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.featureDirectoryLineEdit = QtWidgets.QLineEdit(self.featureDirectoryWidget)
         self.featureDirectoryLineEdit.setObjectName("featureDirectoryLineEdit")
+        self.featureDirectoryLineEdit.setText(self.settings[self.configKeys["features"]])
         self.horizontalLayout_3.addWidget(self.featureDirectoryLineEdit)
         self.featureDirectoryButton = QtWidgets.QPushButton(self.featureDirectoryWidget)
         self.featureDirectoryButton.setObjectName("featureDirectoryButton")
@@ -604,6 +617,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.aggregatedFeatureDirectoryLineEdit = QtWidgets.QLineEdit(self.aggregatedFeatureDirectoryWidget)
         self.aggregatedFeatureDirectoryLineEdit.setObjectName("aggregatedFeatureDirectoryLineEdit")
+        self.aggregatedFeatureDirectoryLineEdit.setText(self.settings[self.configKeys["aggregated_features"]])
         self.horizontalLayout_4.addWidget(self.aggregatedFeatureDirectoryLineEdit)
         self.aggregatedFeatureDirectoryButton = QtWidgets.QPushButton(self.aggregatedFeatureDirectoryWidget)
         self.aggregatedFeatureDirectoryButton.setObjectName("aggregatedFeatureDirectoryButton")
@@ -621,6 +635,22 @@ class Ui_Dialog(object):
         self.buttonBox.rejected.connect(Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+        self.lineEdits["videos"] = self.videoDirectoryLineEdit
+        self.lineEdits["segmented_videos"] = self.segmentedVideoDirectoryLineEdit
+        self.lineEdits["features"] = self.featureDirectoryLineEdit
+        self.lineEdits["aggregated_features"] = self.aggregatedFeatureDirectoryLineEdit
+
+        self.buttonBox.accepted.connect(self.change_config)
+
+        self.videoDirectoryButton.clicked.connect(
+            lambda: self.directory_select("videos"))
+        self.segmentedVideoDirectoryButton.clicked.connect(
+            lambda: self.directory_select("segmented_videos"))
+        self.featureDirectoryButton.clicked.connect(
+            lambda: self.directory_select("features"))
+        self.aggregatedFeatureDirectoryButton.clicked.connect(
+            lambda: self.directory_select("aggregated_features"))
+
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
@@ -634,12 +664,27 @@ class Ui_Dialog(object):
         self.aggregatedFeatureDirectoryLabel.setText(_translate("Dialog", "Aggregated Feature Directory"))
         self.aggregatedFeatureDirectoryButton.setText(_translate("Dialog", "Browse"))
 
+    def change_config(self):
+        for key in self.configKeys.keys():
+            config_key = self.configKeys[key]
+            self.settings[config_key] = self.get_path(key)
+        print(self.settings)
+
+    def get_path(self, key):
+        return self.lineEdits[key].text()
+
+    def directory_select(self, key):
+        dir_name = QtWidgets.QFileDialog.getExistingDirectory(self.dialog,
+                                                          'Select Directory',
+                                                          '../')
+        self.lineEdits[key].setText(dir_name)
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
+    ui = Ui_SettingsDialog(argument_defaults)
     ui.setupUi(Dialog)
     Dialog.show()
     sys.exit(app.exec_())
