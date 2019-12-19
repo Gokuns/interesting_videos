@@ -1416,7 +1416,7 @@ class Ui_MainWindow(object):
 
 
         self.helpButton.clicked.connect(self.openHelper)
-        self.settingsButton.clicked.connect(self.openSettings())
+        self.settingsButton.clicked.connect(self.openSettings)
 
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
