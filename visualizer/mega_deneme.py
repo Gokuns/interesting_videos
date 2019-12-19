@@ -5,8 +5,7 @@
 # Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
-
-
+from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtCore import QDir, Qt, QUrl, QRect
@@ -24,6 +23,8 @@ from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib
 from visualizer.add import Ui_Dialog
+from visualizer.help import Ui_HelperDialog
+
 from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
@@ -74,7 +75,6 @@ class Ui_MainWindow(object):
     def partition_data(self, fil, mode):
         features = [fil[i]['features'] for i in range(len(fil))]
         names = [fil[i]['video'] for i in range(len(fil))]
-        print(names)
         labels = None
         if mode:
             pass
@@ -154,13 +154,13 @@ class Ui_MainWindow(object):
     def refresh_plot(self):
         # print(int(self.coloringMode.isChecked()))
 
-        file = self.load_data(int(self.coloringMode.isChecked()))
+        file = self.load_data()
         data = self.pca_data(file)  # uncomment this when needed
         # file = load_data('C:\\Users\\Goko\\Desktop\\data.json')
-        features, names, labels = self.partition_data(data, 1)
+        features, names, labels = self.partition_data(data, int(self.coloringMode.isChecked()))
         labels = self.cluster_data(features,names,self.numberOfClustersSpinBox.value())
         x_vals, y_vals, z_vals = self.tsne(features, names, labels)
-        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, 1)
+        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, int(self.coloringMode.isChecked()))
 
 
     def setupUi(self, MainWindow):
@@ -772,7 +772,7 @@ class Ui_MainWindow(object):
         sizePolicyPlot.setHeightForWidth(self.plotWidget.sizePolicy().hasHeightForWidth())
         self.plotWidget.setSizePolicy(sizePolicyPlot)
         self.plotWidget.setMinimumSize(QtCore.QSize(300, 300))
-        self.plotWidget.setMaximumSize(QtCore.QSize(900, 900))
+        self.plotWidget.setMaximumSize(QtCore.QSize(600, 600))
         self.plotWidget.setObjectName("plotWidget")
         self.plotAreaLayout.addWidget(self.plotWidget)
         self.line_3 = QtWidgets.QFrame(self.centralwidget)
@@ -1414,8 +1414,13 @@ class Ui_MainWindow(object):
         self.addvideoButton.clicked.connect(self.openAdder)
 
 
+        self.helpButton.clicked.connect(self.openHelper)
+
+
+
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
+        self.savePlotButton.clicked.connect(self.savePlot)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.ind = -1
@@ -1490,7 +1495,17 @@ class Ui_MainWindow(object):
         ad['threads'].append(th3)
         th3.start()
 
+    def openHelper(self):
+        self.helperWin = QtWidgets.QDialog()
+        self.helper = Ui_HelperDialog()
+        self.helper.setupUi(self.helperWin)
+        self.helperWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.helperWin.show()
 
+    def helper_t(self):
+        th4 = threading.Thread(target=self.openHelper())
+        ad['threads'].append(th4)
+        th4.start()
 
 
 
@@ -1579,6 +1594,34 @@ class Ui_MainWindow(object):
         self.c8v1MediaPlayer.play()
         self.c8v2MediaPlayer.play()
         self.c8v3MediaPlayer.play()
+
+    def savePlot(self):
+        dateTimeObj = datetime.now()
+        plot_name = config.argument_defaults['plot_output']+'/'+dateTimeObj.strftime("plot_%d_%b_%Y_%H_%M_%S.png")
+        parameters_name = config.argument_defaults['plot_output']+'/'+ dateTimeObj.strftime("/parameters_%d_%b_%Y_%H_%M_%S.txt")
+        metadata = {}
+        metadata['Number Of Clusters'] = self.numberOfClustersSpinBox.value()
+        metadata['Number of Iterations (t-SNE)'] = self.iterationsSpinBox.value()
+        metadata['Perplexity (t-SNE)'] = self.perplexitySpinBox.value()
+        metadata['Early Exaggeration (t-SNE)'] = self.earlyExaggerationSpinBox.value()
+        metadata['Learning Rate (t-SNE)'] = self.learningRateSpinBox.value()
+        metadata['Number Of PCA Components'] = self.numberOfComponentsSpinBox.value()
+
+        fo = open(parameters_name, "w")
+
+        for k, v in metadata.items():
+            fo.write(str(k) + ': ' + str(v) + '\n')
+
+        fo.close()
+        self.plotWidget.canvas.figure.patch.set_visible(True)
+        self.plotWidget.canvas.axes.patch.set_visible(True)
+        self.plotWidget.canvas.figure.savefig(plot_name, transparent=False)
+        self.plotWidget.canvas.figure.patch.set_visible(False)
+        self.plotWidget.canvas.axes.patch.set_visible(False)
+        self.plotWidget.canvas.draw()
+
+
+
 
     def setUpClusterView(self):
         self.sceneComboBox.setEnabled(False)
