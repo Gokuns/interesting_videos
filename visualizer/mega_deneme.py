@@ -59,8 +59,13 @@ class Ui_MainWindow(object):
             json.dump(data, outfile)
         return data
 
-    def load_data(self, path=config.argument_defaults['aggregation'] + "/max_pool.json"):
+    def load_data(self, mode=0):
         # load and create a list
+        path = ''
+        if mode:
+            path = config.argument_defaults['aggregation'] + "/average.json"
+        else:
+            path = config.argument_defaults['aggregation'] + "/max_pool.json"
         f = open(path)
         fil = json.load(f)
         # features = np.asarray(fil)
@@ -69,6 +74,7 @@ class Ui_MainWindow(object):
     def partition_data(self, fil, mode):
         features = [fil[i]['features'] for i in range(len(fil))]
         names = [fil[i]['video'] for i in range(len(fil))]
+        print(names)
         labels = None
         if mode:
             pass
@@ -148,13 +154,13 @@ class Ui_MainWindow(object):
     def refresh_plot(self):
         # print(int(self.coloringMode.isChecked()))
 
-        file = self.load_data()
+        file = self.load_data(int(self.coloringMode.isChecked()))
         data = self.pca_data(file)  # uncomment this when needed
         # file = load_data('C:\\Users\\Goko\\Desktop\\data.json')
-        features, names, labels = self.partition_data(data, int(self.coloringMode.isChecked()))
+        features, names, labels = self.partition_data(data, 1)
         labels = self.cluster_data(features,names,self.numberOfClustersSpinBox.value())
         x_vals, y_vals, z_vals = self.tsne(features, names, labels)
-        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, int(self.coloringMode.isChecked()))
+        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, 1)
 
 
     def setupUi(self, MainWindow):
@@ -766,7 +772,7 @@ class Ui_MainWindow(object):
         sizePolicyPlot.setHeightForWidth(self.plotWidget.sizePolicy().hasHeightForWidth())
         self.plotWidget.setSizePolicy(sizePolicyPlot)
         self.plotWidget.setMinimumSize(QtCore.QSize(300, 300))
-        self.plotWidget.setMaximumSize(QtCore.QSize(600, 600))
+        self.plotWidget.setMaximumSize(QtCore.QSize(900, 900))
         self.plotWidget.setObjectName("plotWidget")
         self.plotAreaLayout.addWidget(self.plotWidget)
         self.line_3 = QtWidgets.QFrame(self.centralwidget)
@@ -1605,7 +1611,7 @@ class Ui_MainWindow(object):
         self.numberOfComponentsLabel.setText(_translate("MainWindow", "Number of Components"))
         self.label_3.setText(_translate("MainWindow", "Clustering Parameters"))
         self.numberOfClustersLabel.setText(_translate("MainWindow", "Number of Clusters"))
-        self.coloringModeLabel.setText(_translate("MainWindow", "Coloring mode"))
+        self.coloringModeLabel.setText(_translate("MainWindow", "Max pool / Average Pool"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh"))
         self.cluster1_label.setText(_translate("MainWindow", "Cluster 1"))
         self.cluster2_label.setText(_translate("MainWindow", "Cluster 2"))
