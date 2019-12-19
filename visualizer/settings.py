@@ -8,8 +8,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from config import argument_defaults
-
 
 class Ui_SettingsDialog(object):
 
