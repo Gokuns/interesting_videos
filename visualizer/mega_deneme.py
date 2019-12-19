@@ -29,7 +29,7 @@ from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
 import matplotlib.colors as c
-from settings import Ui_SettingsDialog
+from options import Ui_SettingsDialog
 import numpy as np
 
 from sklearn.manifold import TSNE
