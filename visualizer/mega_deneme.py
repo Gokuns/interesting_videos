@@ -5,8 +5,7 @@
 # Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
-
-
+from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtCore import QDir, Qt, QUrl, QRect
@@ -24,6 +23,8 @@ from PyQt5 import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
 import matplotlib
 from visualizer.add import Ui_Dialog
+from visualizer.help import Ui_HelperDialog
+
 from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
@@ -912,9 +913,19 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
+
         self.randomSampleButton = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
         self.randomSampleButton.setObjectName("randomSampleButton")
-        self.verticalLayout_7.addWidget(self.randomSampleButton)
+
+        self.panopticOptionRadio = QtWidgets.QRadioButton(self.scrollAreaWidgetContents)
+        self.panopticOptionRadio.setObjectName("panopticOptionRadio")
+
+        self.controlsHorizontal = QtWidgets.QHBoxLayout()
+        self.controlsHorizontal.setObjectName("controlsHorizontal")
+        self.controlsHorizontal.addWidget(self.panopticOptionRadio)
+
+        self.controlsHorizontal.addWidget(self.randomSampleButton)
+        self.verticalLayout_7.addLayout(self.controlsHorizontal)
         self.cluster1_label = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.cluster1_label.setObjectName("cluster1_label")
         self.verticalLayout_7.addWidget(self.cluster1_label)
@@ -928,7 +939,6 @@ class Ui_MainWindow(object):
         self.cluster1video1.setSizePolicy(sizePolicy)
         self.cluster1video1.setMinimumSize(QtCore.QSize(290, 200))
         self.cluster1video1.setObjectName("widget_3")
-        self.cluster1video1.raise_()
         self.horizontalLayout_6.addWidget(self.cluster1video1)
         self.cluster1video2 = QVideoWidget(self.scrollAreaWidgetContents)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
@@ -1249,6 +1259,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.mediaPlayerOriginal.setVideoOutput(originalVideoWidget)
+
         self.c1v1MediaPlayer.setVideoOutput(self.cluster1video1)
         self.c1v2MediaPlayer.setVideoOutput(self.cluster1video2)
         self.c1v3MediaPlayer.setVideoOutput(self.cluster1video3)
@@ -1257,6 +1268,12 @@ class Ui_MainWindow(object):
         self.c1row.append(self.c1v1MediaPlayer)
         self.c1row.append(self.c1v2MediaPlayer)
         self.c1row.append(self.c1v3MediaPlayer)
+
+        self.cluster1videoWidgets = []
+        self.cluster1videoWidgets.append(self.cluster1video1)
+        self.cluster1videoWidgets.append(self.cluster1video2)
+        self.cluster1videoWidgets.append(self.cluster1video3)
+
 
         self.c2v1MediaPlayer.setVideoOutput(self.cluster2video1)
         self.c2v2MediaPlayer.setVideoOutput(self.cluster2video2)
@@ -1267,6 +1284,10 @@ class Ui_MainWindow(object):
         self.c2row.append(self.c2v2MediaPlayer)
         self.c2row.append(self.c2v3MediaPlayer)
 
+        self.cluster2videoWidgets = []
+        self.cluster2videoWidgets.append(self.cluster2video1)
+        self.cluster2videoWidgets.append(self.cluster2video2)
+        self.cluster2videoWidgets.append(self.cluster2video3)
 
         self.c3v1MediaPlayer.setVideoOutput(self.cluster3video1)
         self.c3v2MediaPlayer.setVideoOutput(self.cluster3video2)
@@ -1277,6 +1298,10 @@ class Ui_MainWindow(object):
         self.c3row.append(self.c3v2MediaPlayer)
         self.c3row.append(self.c3v3MediaPlayer)
 
+        self.cluster3videoWidgets = []
+        self.cluster3videoWidgets.append(self.cluster3video1)
+        self.cluster3videoWidgets.append(self.cluster3video2)
+        self.cluster3videoWidgets.append(self.cluster3video3)
 
         self.c4v1MediaPlayer.setVideoOutput(self.cluster4video1)
         self.c4v2MediaPlayer.setVideoOutput(self.cluster4video2)
@@ -1286,6 +1311,12 @@ class Ui_MainWindow(object):
         self.c4row.append(self.c4v1MediaPlayer)
         self.c4row.append(self.c4v2MediaPlayer)
         self.c4row.append(self.c4v3MediaPlayer)
+
+        self.cluster4videoWidgets = []
+        self.cluster4videoWidgets.append(self.cluster4video1)
+        self.cluster4videoWidgets.append(self.cluster4video2)
+        self.cluster4videoWidgets.append(self.cluster4video3)
+
 
 
         self.c5v1MediaPlayer.setVideoOutput(self.cluster5video1)
@@ -1297,6 +1328,10 @@ class Ui_MainWindow(object):
         self.c5row.append(self.c5v2MediaPlayer)
         self.c5row.append(self.c5v3MediaPlayer)
 
+        self.cluster5videoWidgets = []
+        self.cluster5videoWidgets.append(self.cluster5video1)
+        self.cluster5videoWidgets.append(self.cluster5video2)
+        self.cluster5videoWidgets.append(self.cluster5video3)
 
         self.c6v1MediaPlayer.setVideoOutput(self.cluster6video1)
         self.c6v2MediaPlayer.setVideoOutput(self.cluster6video2)
@@ -1307,6 +1342,10 @@ class Ui_MainWindow(object):
         self.c6row.append(self.c6v2MediaPlayer)
         self.c6row.append(self.c6v3MediaPlayer)
 
+        self.cluster6videoWidgets = []
+        self.cluster6videoWidgets.append(self.cluster6video1)
+        self.cluster6videoWidgets.append(self.cluster6video2)
+        self.cluster6videoWidgets.append(self.cluster6video3)
 
         self.c7v1MediaPlayer.setVideoOutput(self.cluster7video1)
         self.c7v2MediaPlayer.setVideoOutput(self.cluster7video2)
@@ -1316,6 +1355,11 @@ class Ui_MainWindow(object):
         self.c7row.append(self.c7v1MediaPlayer)
         self.c7row.append(self.c7v2MediaPlayer)
         self.c7row.append(self.c7v3MediaPlayer)
+
+        self.cluster7videoWidgets = []
+        self.cluster7videoWidgets.append(self.cluster7video1)
+        self.cluster7videoWidgets.append(self.cluster7video2)
+        self.cluster7videoWidgets.append(self.cluster7video3)
 
 
         self.c8v1MediaPlayer.setVideoOutput(self.cluster8video1)
@@ -1327,7 +1371,10 @@ class Ui_MainWindow(object):
         self.c8row.append(self.c8v2MediaPlayer)
         self.c8row.append(self.c8v3MediaPlayer)
 
-
+        self.cluster8videoWidgets = []
+        self.cluster8videoWidgets.append(self.cluster8video1)
+        self.cluster8videoWidgets.append(self.cluster8video2)
+        self.cluster8videoWidgets.append(self.cluster8video3)
 
 
         self.cvplayers = []
@@ -1341,8 +1388,16 @@ class Ui_MainWindow(object):
         self.cvplayers.append(self.c7row)
         self.cvplayers.append(self.c8row)
 
+        self.videoWidgets = []
 
-
+        self.videoWidgets.append(self.cluster1videoWidgets)
+        self.videoWidgets.append(self.cluster2videoWidgets)
+        self.videoWidgets.append(self.cluster3videoWidgets)
+        self.videoWidgets.append(self.cluster4videoWidgets)
+        self.videoWidgets.append(self.cluster5videoWidgets)
+        self.videoWidgets.append(self.cluster6videoWidgets)
+        self.videoWidgets.append(self.cluster7videoWidgets)
+        self.videoWidgets.append(self.cluster8videoWidgets)
 
         self.mediaPlayerPanoptic.setVideoOutput(panopticVideoWidget)
         self.mediaPlayerOriginal.positionChanged.connect(self.positionChanged)
@@ -1354,13 +1409,18 @@ class Ui_MainWindow(object):
         self.addvideoButton.clicked.connect(self.openAdder)
 
 
+        self.helpButton.clicked.connect(self.openHelper)
+
+
+
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
         self.singleViewButton.clicked.connect(self.setUpSingleView)
+        self.savePlotButton.clicked.connect(self.savePlot)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         self.ind = -1
         self.old_ind = -1
-        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'pink', 'cyan',
+        self.color = ['red', 'blue', 'green', 'purple', 'yellow', 'magenta', 'cyan',
                  'black']
         self.names = []
 
@@ -1430,7 +1490,17 @@ class Ui_MainWindow(object):
         ad['threads'].append(th3)
         th3.start()
 
+    def openHelper(self):
+        self.helperWin = QtWidgets.QDialog()
+        self.helper = Ui_HelperDialog()
+        self.helper.setupUi(self.helperWin)
+        self.helperWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.helperWin.show()
 
+    def helper_t(self):
+        th4 = threading.Thread(target=self.openHelper())
+        ad['threads'].append(th4)
+        th4.start()
 
 
 
@@ -1468,23 +1538,32 @@ class Ui_MainWindow(object):
 
     def showClusterVideos(self):
         fileName= 'C:/Users/Asli/Desktop/videolar'+'/'+'scene-0001.mp4'
+        source = config.argument_defaults['output_path'] if self.panopticOptionRadio.isChecked() else config.argument_defaults['export_path']
+
+
         num_cluster = self.numberOfClustersSpinBox.value()
         import random
         seqs = []
         for i in range(num_cluster):
             seq = random.sample(list(self.cluster_lst[i][0]),3)
             #TODO: output and export must bechangable near the generate sample buttton
-            self.cvplayers[i][0].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[0]])))
-            self.cvplayers[i][1].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[1]])))
-            self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(config.argument_defaults['output_path']+'/'+self.names[seq[2]])))
+            self.cvplayers[i][0].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[0]])))
+            self.cvplayers[i][1].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[1]])))
+            self.cvplayers[i][2].setMedia(QMediaContent(QUrl.fromLocalFile(source+'/'+self.names[seq[2]])))
 
 
-        for i in range(num_cluster):
-            self.cluster_label_list[8-i].setVisible(False)
+        for i in range(8-num_cluster):
+            self.cluster_label_list[7-i].setVisible(False)
+            self.videoWidgets[7-i][0].setVisible(False)
+            self.videoWidgets[7-i][1].setVisible(False)
+            self.videoWidgets[7-i][2].setVisible(False)
 
         for i in range(num_cluster):
             self.cluster_label_list[i].setVisible(True)
-
+            self.cluster_label_list[i].setStyleSheet('color: '+self.color[i])
+            self.videoWidgets[i][0].setVisible(True)
+            self.videoWidgets[i][1].setVisible(True)
+            self.videoWidgets[i][2].setVisible(True)
 
         self.c1v1MediaPlayer.play()
         self.c1v2MediaPlayer.play()
@@ -1510,6 +1589,34 @@ class Ui_MainWindow(object):
         self.c8v1MediaPlayer.play()
         self.c8v2MediaPlayer.play()
         self.c8v3MediaPlayer.play()
+
+    def savePlot(self):
+        dateTimeObj = datetime.now()
+        plot_name = config.argument_defaults['plot_output']+'/'+dateTimeObj.strftime("plot_%d_%b_%Y_%H_%M_%S.png")
+        parameters_name = config.argument_defaults['plot_output']+'/'+ dateTimeObj.strftime("/parameters_%d_%b_%Y_%H_%M_%S.txt")
+        metadata = {}
+        metadata['Number Of Clusters'] = self.numberOfClustersSpinBox.value()
+        metadata['Number of Iterations (t-SNE)'] = self.iterationsSpinBox.value()
+        metadata['Perplexity (t-SNE)'] = self.perplexitySpinBox.value()
+        metadata['Early Exaggeration (t-SNE)'] = self.earlyExaggerationSpinBox.value()
+        metadata['Learning Rate (t-SNE)'] = self.learningRateSpinBox.value()
+        metadata['Number Of PCA Components'] = self.numberOfComponentsSpinBox.value()
+
+        fo = open(parameters_name, "w")
+
+        for k, v in metadata.items():
+            fo.write(str(k) + ': ' + str(v) + '\n')
+
+        fo.close()
+        self.plotWidget.canvas.figure.patch.set_visible(True)
+        self.plotWidget.canvas.axes.patch.set_visible(True)
+        self.plotWidget.canvas.figure.savefig(plot_name, transparent=False)
+        self.plotWidget.canvas.figure.patch.set_visible(False)
+        self.plotWidget.canvas.axes.patch.set_visible(False)
+        self.plotWidget.canvas.draw()
+
+
+
 
     def setUpClusterView(self):
         self.sceneComboBox.setEnabled(False)
@@ -1543,7 +1650,7 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Clustering Parameters"))
         self.numberOfClustersLabel.setText(_translate("MainWindow", "Number of Clusters"))
         self.coloringModeLabel.setText(_translate("MainWindow", "Coloring mode"))
-        self.refreshButton.setText(_translate("MainWindow", "Refresh"))
+        self.refreshButton.setText(_translate("MainWindow", "Generate Plot"))
         self.cluster1_label.setText(_translate("MainWindow", "Cluster 1"))
         self.cluster2_label.setText(_translate("MainWindow", "Cluster 2"))
         self.cluster3_label.setText(_translate("MainWindow", "Cluster 3"))
@@ -1553,6 +1660,7 @@ class Ui_MainWindow(object):
         self.cluster7_label.setText(_translate("MainWindow", "Cluster 7"))
         self.cluster8_label.setText(_translate("MainWindow", "Cluster 8"))
         self.randomSampleButton.setText(_translate("MainWindow", "Show Random Samples"))
+        self.panopticOptionRadio.setText(_translate("MainWindow", "Show Segmented Versions"))
 
         self.setUpSingleView()
 from visualizer.mplwidget import MplWidget
