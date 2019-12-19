@@ -790,6 +790,7 @@ class Ui_Dialog(object):
         self.stackedWidget.setCurrentIndex(1)
         itemsTextList = [str(self.list_view.item(i).text()) for i in
                          range(self.list_view.count())]
+
         th1 = threading.Thread(target=demo.run, args=(self,itemsTextList))
         th1.start()
         ad['threads'].append(th1)

@@ -61,8 +61,13 @@ class Ui_MainWindow(object):
             json.dump(data, outfile)
         return data
 
-    def load_data(self, path=config.argument_defaults['aggregation'] + "/max_pool.json"):
+    def load_data(self, mode=0):
         # load and create a list
+        path = ''
+        if mode:
+            path = config.argument_defaults['aggregation'] + "/average.json"
+        else:
+            path = config.argument_defaults['aggregation'] + "/max_pool.json"
         f = open(path)
         fil = json.load(f)
         # features = np.asarray(fil)
@@ -1655,8 +1660,8 @@ class Ui_MainWindow(object):
         self.numberOfComponentsLabel.setText(_translate("MainWindow", "Number of Components"))
         self.label_3.setText(_translate("MainWindow", "Clustering Parameters"))
         self.numberOfClustersLabel.setText(_translate("MainWindow", "Number of Clusters"))
-        self.coloringModeLabel.setText(_translate("MainWindow", "Coloring mode"))
-        self.refreshButton.setText(_translate("MainWindow", "Generate Plot"))
+        self.coloringModeLabel.setText(_translate("MainWindow", "Max pool / Average Pool"))
+        self.refreshButton.setText(_translate("MainWindow", "Refresh"))
         self.cluster1_label.setText(_translate("MainWindow", "Cluster 1"))
         self.cluster2_label.setText(_translate("MainWindow", "Cluster 2"))
         self.cluster3_label.setText(_translate("MainWindow", "Cluster 3"))

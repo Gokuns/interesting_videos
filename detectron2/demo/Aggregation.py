@@ -12,7 +12,8 @@ aggregation_path = argument_defaults['aggregation']
 
 with open("input") as f:
     videos = f.readlines()
-out = []
+maxer = []
+avger = []
 for video_name in tqdm.tqdm(videos, total=len(videos)):
     video_name = video_name.replace('\n', '')
     video_name = os.path.splitext(video_name)[0]
@@ -27,12 +28,21 @@ for video_name in tqdm.tqdm(videos, total=len(videos)):
             matrix = pd.DataFrame(value)
 
             #TODO changable aggregation method
-            agg = np.max(matrix,axis=0)
+            agg = np.mean(matrix,axis=0)
             vid = {'video' : key,
                    'features': agg.tolist()}
-            out.append(vid)
-with open(aggregation_path + 'average' +'.json', 'w') as outfile:
-    dump(out, outfile)
+            avger.append(vid)
+
+            agg2 = np.max(matrix,axis=0)
+            vid = {'video' : key,
+                   'features': agg2.tolist()}
+            maxer.append(vid)
+with open(aggregation_path + 'average2' +'.json', 'w') as outfile:
+    dump(avger, outfile)
+
+with open(aggregation_path + 'max_pool2' + '.json', 'w') as outfile:
+    dump(maxer, outfile)
+
 
 
 

@@ -173,11 +173,23 @@ def run(object, videos):
                     if cv2.waitKey(1) == 27:
                         break  # esc to quit
 
-            output = {video_name: feats.features}
+            output = {vid_path.name: feats.features}
 
             video.release()
             with open(argument_defaults['extractor'] + vid_path.stem+ '.json', 'w') as outfile:
                 json.dump(output, outfile)
+
+            with open(argument_defaults['video_data_path'].format(argument_defaults['poc_mode']), 'r+') as dataset:
+                data=json.load(dataset)
+                print('read dataset')
+
+            with open(argument_defaults['aggregation'] + 'max_pool' + '.json', 'r+') as agg:
+                aggr=json.load(agg)
+                print('read agg')
+
+                # with open(
+                #         argument_defaults['aggregation'] + 'average' + '.json', 'r+') as dataset:
+                #     data = json.load(dataset)
 
             if args.output:
                 output_file.release()
