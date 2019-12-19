@@ -1411,7 +1411,7 @@ class Ui_MainWindow(object):
 
 
         self.helpButton.clicked.connect(self.openHelper)
-
+        self.settingsButton.clicked.connect(self.openSettings())
 
 
         self.clusterViewButton.clicked.connect(self.setUpClusterView)
@@ -1506,9 +1506,9 @@ class Ui_MainWindow(object):
     def openSettings(self):
         self.settingsWin = QtWidgets.QDialog()
         self.settings = Ui_SettingsDialog(config.argument_defaults)
-        self.helper.setupUi(self.helperWin)
-        self.helperWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.helperWin.show()
+        self.settigs.setupUi(self.settingsWin)
+        self.settingsWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.settingsWin.show()
 
 
     def openVideo(self, text):
