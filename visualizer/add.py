@@ -638,7 +638,7 @@ class Ui_Dialog(object):
         self.add_base_lay.addLayout(self.add_upper_lay)
         self.dialog_buttons = QtWidgets.QDialogButtonBox(self.widget)
         self.dialog_buttons.setOrientation(QtCore.Qt.Horizontal)
-        self.dialog_buttons.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.dialog_buttons.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
         self.dialog_buttons.setObjectName("dialog_buttons")
         self.add_base_lay.addWidget(self.dialog_buttons)
         self.stackedWidget.addWidget(self.add_page)
@@ -696,6 +696,7 @@ class Ui_Dialog(object):
         self.horizontalLayout_3.addItem(spacerItem5)
         self.finish_button = QtWidgets.QPushButton(self.widget1)
         self.finish_button.setObjectName("finish_button")
+        self.finish_button.hide()
         self.horizontalLayout_3.addWidget(self.finish_button)
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.stackedWidget.addWidget(self.page_3)
@@ -714,10 +715,17 @@ class Ui_Dialog(object):
         self.remove_button.clicked.connect(self.remove_item)
         self.add_button.clicked.connect(self.open)
         self.dialog_buttons.accepted.connect(self.accept)
-        self.dialog_buttons.rejected.connect(self.close_click)
+        self.load_button_box.rejected.connect(self.abort_func)
+        self.finish_button.clicked.connect(self.close_prog)
+
 
         self.count = 0
         self.total_frame = 0
+        self.abortMode = 0
+
+    def abort_func(self):
+        self.abortMode = 1
+        self.stackedWidget.setCurrentIndex(2)
 
 
 
@@ -729,7 +737,7 @@ class Ui_Dialog(object):
         self.clear_button.setText(_translate("Dialog", "Clear"))
         self.drag_drop.setText(_translate("Dialog", "Drag and Drop Videos Here!"))
         self.load_info_label.setText(_translate("Dialog", "TextLabel"))
-        self.succ_info_label.setText(_translate("Dialog", "Videos are added successfully."))
+        self.succ_info_label.setText(_translate("Dialog", "Addition finished."))
         self.finish_button.setText(_translate("Dialog", "Finish"))
 
     class Drag_label(QtWidgets.QLabel):
@@ -773,10 +781,8 @@ class Ui_Dialog(object):
                     continue
                 self.list_view.addItem(vid)
 
-    def close_click(self):
-        self.stackedWidget.close()
-
     def accept(self):
+        self.abortMode = 0
         for i in range(self.list_view.count()):
             vid = self.list_view.item(i)
             vid = str(vid.text())
@@ -804,13 +810,20 @@ class Ui_Dialog(object):
 
         return result
 
-    def update_prog(self, name, vid, curr_frame, vid_frame, frame_count,videos):
-        text = self.prog_str(name, vid, curr_frame, vid_frame,frame_count,videos)
-        self.load_info_label.setText(text)
-        progress = (frame_count/self.total_frame)*100
-        print(progress)
-        self.prog_bar.setValue(progress)
+    def update_prog(self, name, vid, curr_frame, vid_frame, frame_count,videos, mode=0):
+        if mode ==1:
+            self.stackedWidget.setCurrentIndex(2)
+        else:
+            text = self.prog_str(name, vid, curr_frame, vid_frame,frame_count,videos)
+            self.load_info_label.setText(text)
+            progress = (frame_count/self.total_frame)*100
+            print(progress)
+            self.prog_bar.setValue(progress)
 
+    def close_prog(self, event):
+        print("asd")
+
+        event.accept()
 
 if __name__ == "__main__":
     import sys

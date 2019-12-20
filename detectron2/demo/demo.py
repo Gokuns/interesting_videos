@@ -15,6 +15,7 @@ from detectron2.detectron2.config import get_cfg
 from detectron2.detectron2.data.detection_utils import read_image
 from detectron2.detectron2.utils.logger import setup_logger
 from detectron2 import opt_creator
+from detectron2.demo.Aggregation import aggregate_vid
 
 
 from detectron2.demo.predictor import VisualizationDemo
@@ -163,6 +164,8 @@ def run(object, videos):
                 frame_count+=1
 
                 object.update_prog(video_name, curr_vid, curr_frame, num_frames, frame_count, len(videos))
+                if object.abortMode == 1:
+                    break
 
                 if args.output:
                     output_file.write(vis_frame)
@@ -173,24 +176,58 @@ def run(object, videos):
                     if cv2.waitKey(1) == 27:
                         break  # esc to quit
 
+
             output = {vid_path.name: feats.features}
+
+            if object.abortMode == 1:
+                break
 
             video.release()
             with open(argument_defaults['extractor'] + vid_path.stem+ '.json', 'w') as outfile:
                 json.dump(output, outfile)
 
             with open(argument_defaults['video_data_path'].format(argument_defaults['poc_mode']), 'r+') as dataset:
+                print('started on dataset')
                 data=json.load(dataset)
-                print('read dataset')
+                a = {'video_path': str(vid_path)}
+                if not any(d['video_path'] == str(vid_path) for d in data['videos']):
+                    data['videos'].append(a)
+                    print('what')
+                dataset.seek(0)
+                #json.dump(data,dataset)
+                dataset.close()
 
             with open(argument_defaults['aggregation'] + 'max_pool' + '.json', 'r+') as agg:
+                print('started on maxpool')
                 aggr=json.load(agg)
-                print('read agg')
+                featurr = aggregate_vid(feats.features,mode=2)
+                dumper = {'video': vid_path.name,
+                          'features': featurr.tolist()}
+                if not dumper in aggr:
+
+                    aggr.append(dumper)
+                    agg.seek(0)
+                    #json.dump(aggr,agg)
+                agg.close()
+
+            with open(argument_defaults['aggregation'] + 'average' + '.json', 'r+') as agg2:
+                print('started on avg')
+                aggr=json.load(agg2)
+                featurr = aggregate_vid(feats.features, mode=1)
+                dumped = {'video': vid_path.name,
+                          'features': featurr.tolist()}
+                if not dumped in aggr:
+                    aggr.append(dumped)
+                    agg2.seek(0)
+                    #json.dump(aggr,agg2)
+                agg2.close()
+
 
                 # with open(
                 #         argument_defaults['aggregation'] + 'average' + '.json', 'r+') as dataset:
                 #     data = json.load(dataset)
 
+            object.update_prog(video_name, curr_vid, curr_frame, num_frames, frame_count, len(videos),1)
             if args.output:
                 output_file.release()
             else:

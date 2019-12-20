@@ -29,7 +29,7 @@ from config import argument_defaults as ad
 matplotlib.use('Qt5Agg')
 import threading
 import matplotlib.colors as c
-from options import Ui_SettingsDialog
+from visualizer.options import Ui_SettingsDialog
 import numpy as np
 
 from sklearn.manifold import TSNE
@@ -113,6 +113,16 @@ class Ui_MainWindow(object):
 
 
     def plot_tnse(self, x_vals, y_vals, z_vals, names, labels, mode):
+        self.sceneComboBox.clear()
+        dataset = Dataset.Dataset(name='', json_path=config.argument_defaults[
+            'video_data_path']
+                                  .format(config.argument_defaults['poc_mode']))
+        self.sceneComboBox.addItem("")
+        self.sceneComboBox.addItems(sorted(
+            ntpath.basename(videoData.video_path) for videoData in
+            dataset.videos))
+
+
         self.plotWidget.canvas.axes.clear()
         self.plotWidget.canvas.axes.patch.set_visible(False)
 
@@ -158,10 +168,10 @@ class Ui_MainWindow(object):
         file = self.load_data()
         data = self.pca_data(file)  # uncomment this when needed
         # file = load_data('C:\\Users\\Goko\\Desktop\\data.json')
-        features, names, labels = self.partition_data(data, int(self.coloringMode.isChecked()))
+        features, names, labels = self.partition_data(data, 1)
         labels = self.cluster_data(features,names,self.numberOfClustersSpinBox.value())
         x_vals, y_vals, z_vals = self.tsne(features, names, labels)
-        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, int(self.coloringMode.isChecked()))
+        self.plot_tnse(x_vals, y_vals, z_vals, names, labels, 1)
 
 
     def setupUi(self, MainWindow):
@@ -1463,6 +1473,8 @@ class Ui_MainWindow(object):
 
 
 
+
+
     def play(self):
         if self.mediaPlayerOriginal.state() == QMediaPlayer.PlayingState:
             self.mediaPlayerOriginal.pause()
@@ -1487,9 +1499,10 @@ class Ui_MainWindow(object):
         self.mediaPlayerOriginal.setPosition(position)
 
     def openAdder(self):
-
+        self.adderWin = QtWidgets.QMainWindow()
         self.adder.setupUi(self.adderWin)
         self.adderWin.show()
+
 
     def adder_t(self):
         th3 = threading.Thread(target=self.openAdder)
@@ -1511,7 +1524,7 @@ class Ui_MainWindow(object):
     def openSettings(self):
         self.settingsWin = QtWidgets.QDialog()
         self.settings = Ui_SettingsDialog(config.argument_defaults)
-        self.settigs.setupUi(self.settingsWin)
+        self.settings.setupUi(self.settingsWin)
         self.settingsWin.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.settingsWin.show()
 
